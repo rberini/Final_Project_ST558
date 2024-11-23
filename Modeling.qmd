@@ -3,15 +3,280 @@ title: "Diabetes Modeling"
 author: "Robert Berini"
 format: html
 editor: visual
+execute: 
+  warning: false
+  message: false
 ---
 
 ## Load required packages
 
 ```{r}
+library(conflicted)
 library(tidyverse)
 library(tidymodels)
 library(baguette)
 library(vip)
-options(scipen = 999, digits = 2)
+library(future)
+library(furrr)
+
+conflicts_prefer(dplyr::lag)
+conflicts_prefer(dplyr::filter)
 tidymodels_prefer()
+
+options(scipen = 999, digits = 2)
+```
+
+## Read data
+
+```{r}
+diabetes <- readRDS("data/diabetes.rds")
+diabetes
+```
+
+## Split the data
+
+Split the data into a training and test set (70/30 split). Use the `strata` argument to stratify the split on the `diabetes` outcome.
+
+```{r}
+set.seed(558)
+diabetes_split <- initial_split(diabetes, prop = 0.7, strata = "Diabetes")
+diabetes_train <- training(diabetes_split)
+diabetes_test <- testing(diabetes_split)
+```
+
+On the training set, create a 5 fold CV split.
+
+```{r}
+diabetes_5_fold <- vfold_cv(diabetes_train, 5)
+```
+
+## Create recipe
+
+placeholder text
+
+```{r}
+diabetes_rec <-
+  recipe(Diabetes ~ ., data = diabetes_train) |>
+  step_rm(Fruits:NoDocbcCost) |>
+  step_normalize(all_numeric_predictors()) |>
+  step_pca(ends_with("Hlth"), num_comp = 1)
+```
+
+```{r}
+diabetes_rec |>
+  prep(training = diabetes_train) |>
+  bake(diabetes_train)
+```
+
+Define metrics set.
+
+```{r}
+metrics_set <- metric_set(mn_log_loss, roc_auc, accuracy, spec, sens)
+```
+
+Set up Classification Tree fit to use the `“rpart”` engine.
+
+```{r}
+tree_mod <- decision_tree(tree_depth = tune(),
+                          min_n = 10,
+                          cost_complexity = tune()) |>
+  set_engine("rpart") |>
+  set_mode("classification")
+```
+
+Create workflow using recipe and model.
+
+```{r}
+diabetes_tree_wfl <- 
+  workflow() |>
+  add_recipe(diabetes_rec) |>
+  add_model(tree_mod)
+```
+
+Create a tuning grid to consider varying levels of tree depth and cost complexity.
+
+```{r}
+plan(multisession, workers = 4)
+
+set.seed(558)
+
+tree_fits <-
+  diabetes_tree_wfl |> 
+  tune_grid(resamples = diabetes_5_fold, grid = 20,
+            metrics = metric_set(mn_log_loss))
+
+plan(sequential)
+```
+
+Sort models by tuned tree depth and cost complexity parameters with lowest Log Loss.
+
+```{r}
+tree_fits |>
+  collect_metrics() |>
+  filter(.metric == "mn_log_loss") |>
+  arrange(mean)
+```
+
+Show model performance at different levels of tree depth and cost complexity parameters.
+
+```{r}
+tree_fits |>
+  collect_metrics() |>
+  filter(.metric == "mn_log_loss") |>
+  mutate(tree_depth = factor(tree_depth)) %>%
+  ggplot(aes(cost_complexity, mean, color = tree_depth)) +
+  geom_line(size = 1.5, alpha = 0.6) +
+  geom_point(size = 2) +
+  scale_x_log10(labels = scales::label_number()) +
+  scale_color_viridis_d()
+```
+
+Identify parameter combination with lowest Log Loss.
+
+```{r}
+tree_best_params <-
+  tree_fits |>
+  select_best(metric = "mn_log_loss")
+tree_best_params
+```
+
+Using the best model, fit the model to the entire training data set using the `last_fit()` function. Compute metrics on the test set.
+
+```{r}
+diabetes_tree_final_fit <-
+  diabetes_tree_wfl |>
+  finalize_workflow(tree_best_params) |>
+  last_fit(split = diabetes_split, metrics = metrics_set)
+
+diabetes_tree_final_fit |>
+  collect_metrics()
+```
+
+Visualize the classification tree.
+
+```{r}
+diabetes_tree_final_fit |>
+  extract_workflow() |>
+  extract_fit_engine() |>
+  rpart.plot::rpart.plot(roundint = F)
+```
+
+Collect final metrics for best Classification Tree model.
+
+```{r}
+tree_metrics <-
+  diabetes_tree_final_fit |>
+  collect_metrics()
+tree_metrics
+```
+
+## Fit Random Forest Model
+
+Set up Random Forest fit to use the `“ranger”` engine.
+
+```{r}
+#| eval: false
+rf_mod <- rand_forest(mtry = tune(),
+                      min_n = tune(),
+                      trees = 500) |>
+  set_engine("ranger", importance = "impurity") |>
+  set_mode("classification")
+```
+
+Create workflow using recipe 1.
+
+```{r}
+#| eval: false
+diabetes_rf_wfl <- 
+  workflow() |>
+  add_recipe(diabetes_rec) |>
+  add_model(rf_mod)
+```
+
+Create a tuning grid to consider varying levels of number of predictors that will be randomly sampled at each split and number of trees contained in the ensemble.
+
+```{r}
+#| eval: false
+plan(multisession, workers = 4)
+
+set.seed(558)
+
+rf_fits <-
+  diabetes_rf_wfl |> 
+  tune_random(resamples = diabetes_5_fold, grid = 5,
+              metrics = metric_set(mn_log_loss))
+
+plan(sequential)
+```
+
+Sort models by tuned parameters with lowest Log Loss.
+
+```{r}
+#| eval: false
+rf_fits |>
+  collect_metrics() |>
+  filter(.metric == "mn_log_loss") |>
+  arrange(mean)
+```
+
+Identify parameter combination with lowest Log Loss.
+
+```{r}
+#| eval: false
+rf_best_params <-
+  rf_fits |>
+  select_best(metric = "mn_log_loss")
+rf_best_params
+```
+
+Using the best model, fit the model to the entire training data set using the `last_fit()` function. Compute the Log Loss and Accuracy metrics on the test set.
+
+```{r}
+#| eval: false
+diabetes_rf_final_fit <-
+  diabetes_rf_wfl |>
+  finalize_workflow(rf_best_params) |>
+  last_fit(split = diabetes_split, metrics = metrics_set)
+
+diabetes_rf_final_fit |>
+  collect_metrics()
+```
+
+Produce a variable importance plot.
+
+```{r}
+#| eval: false
+diabetes_rf_final_model <- extract_fit_engine(diabetes_rf_final_fit) 
+diabetes_rf_final_model |>
+  vip(num_features = 22)
+```
+
+Collect final Log Loss and Accuracy metrics for best Random Forest model.
+
+```{r}
+#| eval: false
+rf_metrics <-
+  diabetes_rf_final_fit |>
+  collect_metrics()
+rf_metrics
+```
+
+## Select the Best Model
+
+Compare all final models using both Log Loss and ROC AUC
+
+```{r}
+#| eval: false
+rbind(mlr_metrics, lasso_metrics, tree_metrics, bag_metrics, rf_metrics) |>
+  filter(.metric == "mn_log_loss") |>
+  mutate(model = c("Classification Tree", "Random Forest")) |>
+  select(model, "mean_mn_log_loss" = .estimate)
+```
+
+```{r}
+#| eval: false
+rbind(mlr_metrics, lasso_metrics, tree_metrics, bag_metrics, rf_metrics) |>
+  filter(.metric == "roc_auc") |>
+  mutate(model = c("Classification Tree", "Random Forest")) |>
+  select(model, "mean_roc_auc" = .estimate)
 ```
