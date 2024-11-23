@@ -116,3 +116,10 @@ saveRDS(diabetes, "data/diabetes.rds")
 ```
 
 ## EDA
+
+```{r}
+diabetes |>
+  select(dplyr::ends_with("Hlth")) |>
+  cor()
+```
+
