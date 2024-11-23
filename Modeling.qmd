@@ -5,7 +5,8 @@ format: html
 editor: visual
 ---
 
-#@ Load required packages
+## Load required packages
+
 ```{r}
 library(tidyverse)
 library(tidymodels)
@@ -14,4 +15,3 @@ library(vip)
 options(scipen = 999, digits = 2)
 tidymodels_prefer()
 ```
-
