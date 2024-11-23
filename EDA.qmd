@@ -1,0 +1,16 @@
+---
+title: "Diabetes EDA"
+author: "Robert Berini"
+format: html
+editor: visual
+---
+
+#@ Load required packages
+```{r}
+library(tidyverse)
+library(janitor)
+library(naniar)
+library(skimr)
+library(pastecs)
+options(scipen = 999, digits = 2)
+```

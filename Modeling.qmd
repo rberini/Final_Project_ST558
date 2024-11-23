@@ -1,0 +1,17 @@
+---
+title: "Diabetes Modeling"
+author: "Robert Berini"
+format: html
+editor: visual
+---
+
+#@ Load required packages
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(baguette)
+library(vip)
+options(scipen = 999, digits = 2)
+tidymodels_prefer()
+```
+
