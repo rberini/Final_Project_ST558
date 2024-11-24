@@ -97,7 +97,6 @@ diabetes <-
                          ordered = T))
 ```
 
-
 ```{r}
 glimpse(diabetes)
 ```
@@ -120,6 +119,7 @@ Save manipulated data set
 
 ```{r}
 saveRDS(diabetes, "data/diabetes.rds")
+save(diabetes, file = "data/diabetes.RData")
 ```
 
 ## EDA

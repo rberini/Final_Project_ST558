@@ -296,3 +296,11 @@ rbind(tree_metrics, rf_metrics) |>
   mutate(model = c("Classification Tree", "Random Forest")) |>
   select(model, "mean_roc_auc" = .estimate)
 ```
+
+Save model
+
+```{r}
+save(diabetes_rf_final_model, file = "diabetes_rf_final_model.RData")
+save(diabetes_rf_final_fit, file = "diabetes_rf_final_fit.RData")
+```
+
