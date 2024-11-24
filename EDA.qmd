@@ -56,6 +56,17 @@ multi_fac_cols <- c("Age", "Education", "Income")
 diabetes <-
   diabetes_raw |>
   rename(Diabetes = Diabetes_binary) |>
+  mutate(Sex = factor(Sex, levels = 0:1, labels = c("Female", "Male"))) |>
+  mutate(across(
+    .cols = !c(Sex, all_of(true_numeric_cols), all_of(multi_fac_cols)),
+    .fns = ~ factor(.x, levels = 0:1, labels = c("No", "Yes"))
+  )) |>
+  mutate(across(where(is.factor), fct_rev))
+```
+
+```{r}
+diabetes <-
+  diabetes |>
   mutate(Age = factor(Age, 
                       levels = 1:13, 
                       labels = c("Age 18 - 24", "Age 25 to 29", "Age 30 to 34", 
@@ -83,13 +94,9 @@ diabetes <-
                                     "$35,000 to less than $50,000", 
                                     "$50,000 to less than $75,000", 
                                     "$75,000 or more"),
-                         ordered = T))|>
-  mutate(Sex = factor(as.numeric(Sex), levels = c(0, 1), labels = c("Female", "Male"))) |>
-  mutate(across(
-    .cols = !c(Sex, true_numeric_cols, multi_fac_cols),
-    .fns = ~ factor(as.numeric(.x), levels = c(0, 1), labels = c("No", "Yes"))
-  ))
+                         ordered = T))
 ```
+
 
 ```{r}
 glimpse(diabetes)
@@ -122,4 +129,3 @@ diabetes |>
   select(dplyr::ends_with("Hlth")) |>
   cor()
 ```
-

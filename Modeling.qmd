@@ -57,9 +57,9 @@ placeholder text
 ```{r}
 diabetes_rec <-
   recipe(Diabetes ~ ., data = diabetes_train) |>
-  step_rm(Fruits:NoDocbcCost) |>
-  step_normalize(all_numeric_predictors()) |>
-  step_pca(ends_with("Hlth"), num_comp = 3, prefix = "Hlth")
+  step_rm(CholCheck, Smoker, Stroke, Fruits:NoDocbcCost) #|>
+  #step_normalize(all_numeric_predictors()) |>
+  #step_pca(ends_with("Hlth"), num_comp = 3, prefix = "Hlth")
 ```
 
 ```{r}
@@ -68,7 +68,7 @@ diabetes_rec |>
   bake(diabetes_train)
 ```
 
-Define metrics set.
+Define event level and metrics set.
 
 ```{r}
 metrics_set <- metric_set(mn_log_loss, roc_auc, accuracy, spec, sens)
@@ -77,8 +77,8 @@ metrics_set <- metric_set(mn_log_loss, roc_auc, accuracy, spec, sens)
 Set up Classification Tree fit to use the `“rpart”` engine.
 
 ```{r}
-tree_mod <- decision_tree(tree_depth = tune(),
-                          min_n = 10,
+tree_mod <- decision_tree(tree_depth = 8,
+                          min_n = 25,
                           cost_complexity = tune()) |>
   set_engine("rpart") |>
   set_mode("classification")
@@ -93,7 +93,7 @@ diabetes_tree_wfl <-
   add_model(tree_mod)
 ```
 
-Create a tuning grid to consider varying levels of tree depth and cost complexity.
+Create a tuning grid to consider varying levels of cost complexity.
 
 ```{r}
 plan(multisession, workers = 4)
@@ -108,27 +108,13 @@ tree_fits <-
 plan(sequential)
 ```
 
-Sort models by tuned tree depth and cost complexity parameters with lowest Log Loss.
+Sort models by tuned cost complexity parameters with lowest Log Loss.
 
 ```{r}
 tree_fits |>
   collect_metrics() |>
   filter(.metric == "mn_log_loss") |>
   arrange(mean)
-```
-
-Show model performance at different levels of tree depth and cost complexity parameters.
-
-```{r}
-tree_fits |>
-  collect_metrics() |>
-  filter(.metric == "mn_log_loss") |>
-  mutate(tree_depth = factor(tree_depth)) %>%
-  ggplot(aes(cost_complexity, mean, color = tree_depth)) +
-  geom_line(size = 1.5, alpha = 0.6) +
-  geom_point(size = 2) +
-  scale_x_log10(labels = scales::label_number()) +
-  scale_color_viridis_d()
 ```
 
 Identify parameter combination with lowest Log Loss.
@@ -161,6 +147,25 @@ diabetes_tree_final_fit |>
   rpart.plot::rpart.plot(roundint = F, faclen = 2)
 ```
 
+Produce a variable importance plot.
+
+```{r}
+diabetes_tree_final_model <- extract_fit_engine(diabetes_tree_final_fit) 
+diabetes_tree_final_model |>
+  vip(num_features = 15)
+```
+
+Generate a confusion matrix for final fit.
+
+```{r}
+tree_predictions <- 
+  diabetes_tree_final_fit |>
+  collect_predictions()
+
+tree_conf_matrix <-conf_mat(tree_predictions, truth = Diabetes, estimate = .pred_class)
+tree_conf_matrix
+```
+
 Collect final metrics for best Classification Tree model.
 
 ```{r}
@@ -177,7 +182,7 @@ Set up Random Forest fit to use the `“ranger”` engine.
 ```{r}
 
 rf_mod <- rand_forest(mtry = tune(),
-                      min_n = tune(),
+                      min_n = 25,
                       trees = 500) |>
   set_engine("ranger", importance = "impurity") |>
   set_mode("classification")
@@ -248,7 +253,18 @@ Produce a variable importance plot.
 
 diabetes_rf_final_model <- extract_fit_engine(diabetes_rf_final_fit) 
 diabetes_rf_final_model |>
-  vip(num_features = 22)
+  vip(num_features = 15)
+```
+
+Generate a confusion matrix for final fit.
+
+```{r}
+rf_predictions <- 
+  diabetes_tree_final_fit |>
+  collect_predictions()
+
+rf_conf_matrix <-conf_mat(rf_predictions, truth = Diabetes, estimate = .pred_class)
+rf_conf_matrix
 ```
 
 Collect final Log Loss and Accuracy metrics for best Random Forest model.
