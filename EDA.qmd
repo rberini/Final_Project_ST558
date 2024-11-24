@@ -129,3 +129,7 @@ diabetes |>
   select(dplyr::ends_with("Hlth")) |>
   cor()
 ```
+
+## Modeling
+
+The story continues. For Modeling results, go here: [Modeling Webpage](Modeling.html)

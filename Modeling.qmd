@@ -39,7 +39,7 @@ Split the data into a training and test set (70/30 split). Use the `strata` argu
 
 ```{r}
 set.seed(558)
-diabetes_split <- initial_split(diabetes, prop = 0.7, strata = "Diabetes")
+diabetes_split <- initial_split(diabetes, prop = 0.7, strata = Diabetes)
 diabetes_train <- training(diabetes_split)
 diabetes_test <- testing(diabetes_split)
 ```
@@ -47,7 +47,8 @@ diabetes_test <- testing(diabetes_split)
 On the training set, create a 5 fold CV split.
 
 ```{r}
-diabetes_5_fold <- vfold_cv(diabetes_train, 5)
+set.seed(558)
+diabetes_5_fold <- vfold_cv(diabetes_train, v = 5, strata = Diabetes)
 ```
 
 ## Create recipe
@@ -166,7 +167,7 @@ tree_conf_matrix <-conf_mat(tree_predictions, truth = Diabetes, estimate = .pred
 tree_conf_matrix
 ```
 
-Collect final metrics for best Classification Tree model.
+Collect and save final metrics for best Classification Tree model.
 
 ```{r}
 tree_metrics <-
@@ -180,7 +181,6 @@ tree_metrics
 Set up Random Forest fit to use the `“ranger”` engine.
 
 ```{r}
-
 rf_mod <- rand_forest(mtry = tune(),
                       min_n = 25,
                       trees = 500) |>
@@ -191,7 +191,6 @@ rf_mod <- rand_forest(mtry = tune(),
 Create workflow using recipe 1.
 
 ```{r}
-
 diabetes_rf_wfl <- 
   workflow() |>
   add_recipe(diabetes_rec) |>
@@ -201,7 +200,6 @@ diabetes_rf_wfl <-
 Create a tuning grid to consider varying levels of number of predictors that will be randomly sampled at each split and number of trees contained in the ensemble.
 
 ```{r}
-
 plan(multisession, workers = 4)
 
 set.seed(558)
@@ -217,7 +215,6 @@ plan(sequential)
 Sort models by tuned parameters with lowest Log Loss.
 
 ```{r}
-
 rf_fits |>
   collect_metrics() |>
   filter(.metric == "mn_log_loss") |>
@@ -279,7 +276,7 @@ rf_metrics
 
 ## Select the Best Model
 
-Compare all final models using both Log Loss and ROC AUC
+Compare all final models using both Log Loss and ROC AUC.
 
 ```{r}
 
@@ -297,10 +294,11 @@ rbind(tree_metrics, rf_metrics) |>
   select(model, "mean_roc_auc" = .estimate)
 ```
 
-Save model
+The Random Forest model performs slightly better on both metrics so that will serve as our final model.
+
+Save best model.
 
 ```{r}
 save(diabetes_rf_final_model, file = "diabetes_rf_final_model.RData")
 save(diabetes_rf_final_fit, file = "diabetes_rf_final_fit.RData")
 ```
-
