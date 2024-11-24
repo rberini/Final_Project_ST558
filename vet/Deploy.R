@@ -10,9 +10,12 @@ tidymodels_prefer()
 
 options(scipen = 999, digits = 2)
 
-load("data/diabetes.RData")
-load("diabetes_rf_final_model.RData")
-load("diabetes_rf_final_fit.RData")
+curdir <- getwd()
+setwd("./vet")
+
+load("../data/diabetes.RData")
+load("../diabetes_rf_final_model.RData")
+load("../diabetes_rf_final_fit.RData")
 
 data(diabetes)
 
@@ -31,3 +34,5 @@ board |>
 
 vetiver_write_plumber(board, "rmberin2@ncsu.edu/diabetes-rf", rsconnect = FALSE)
 vetiver_write_docker(v_diabetes_rf_final_fit)
+
+setwd(curdir)
