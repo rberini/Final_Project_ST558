@@ -17,6 +17,7 @@ library(psych)
 library(tidyverse)
 library(janitor)
 library(ggmosaic)
+library(knitr)
 
 conflicts_prefer(dplyr::lag)
 conflicts_prefer(dplyr::filter)
@@ -188,7 +189,8 @@ diabetes |>
   summarise(across(where(is.numeric),
                    list("median" = median, "mean" = mean, "stdev" = sd),
                    .names = "{.fn}_{.col}"))|>
-  mutate(across(where(is.numeric), round, 2))
+  mutate(across(where(is.numeric), round, 2)) |>
+  kable()
 ```
 
 ```{r}
