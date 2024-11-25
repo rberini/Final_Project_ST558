@@ -15,6 +15,8 @@ library(conflicted)
 library(skimr)
 library(psych)
 library(tidyverse)
+library(janitor)
+library(ggmosaic)
 
 conflicts_prefer(dplyr::lag)
 conflicts_prefer(dplyr::filter)
@@ -44,13 +46,15 @@ diabetes_raw |>
   focus(n_missing, complete_rate, numeric.hist)
 ```
 
-Reassign column types
+Reassign column types.
 
 ```{r}
 #consistent with social science practices, treating GenHlth Likert scale as an interval scale
 true_numeric_cols <- c("BMI", "GenHlth", "MentHlth", "PhysHlth")
 multi_fac_cols <- c("Age", "Education", "Income")
 ```
+
+Create factors for binary variables.
 
 ```{r}
 diabetes <-
@@ -61,8 +65,10 @@ diabetes <-
     .cols = !c(Sex, all_of(true_numeric_cols), all_of(multi_fac_cols)),
     .fns = ~ factor(.x, levels = 0:1, labels = c("No", "Yes"))
   )) |>
-  mutate(across(where(is.factor), fct_rev))
+  mutate(across(where(is.factor), fct_rev)) #so modeling correctly reflects positive class
 ```
+
+Create factors for multi-level variables.
 
 ```{r}
 diabetes <-
@@ -115,7 +121,7 @@ diabetes |>
   summary(maxsum = Inf)
 ```
 
-Save manipulated data set
+Save manipulated data set.
 
 ```{r}
 saveRDS(diabetes, "data/diabetes.rds")
@@ -124,12 +130,136 @@ save(diabetes, file = "data/diabetes.RData")
 
 ## EDA
 
+Frequency of diabetes diagnosis across the data set.
+
 ```{r}
 diabetes |>
-  select(dplyr::ends_with("Hlth")) |>
+  ggplot(aes(x = Diabetes)) +
+  geom_bar(aes(fill = Diabetes)) +
+  scale_fill_manual(values = c("Yes"="#F51304","No"="#2D8AEB"))
+```
+
+Percentage of diabetes diagnosis across the data set.
+
+```{r}
+diabetes |>
+  tabyl(Diabetes) |>
+  adorn_totals("row") |>
+  adorn_pct_formatting()
+```
+
+```{r}
+diabetes |>
+  tabyl(Sex, Diabetes) |>
+  adorn_percentages() |>
+  adorn_pct_formatting() |>
+  adorn_title()
+```
+
+```{r}
+diabetes |>
+  tabyl(HighBP, Diabetes) |>
+  adorn_percentages() |>
+  adorn_pct_formatting() |>
+  adorn_title()
+```
+
+```{r}
+diabetes |>
+  tabyl(HighChol, Diabetes) |>
+  adorn_percentages() |>
+  adorn_pct_formatting() |>
+  adorn_title()
+```
+
+Check how correlated the numeric variables are with one another.
+
+```{r}
+diabetes |>
+  select(where(is.numeric)) |>
   cor()
+```
+
+Get summary statistics grouped by diabetes diagnosis.
+
+```{r}
+diabetes |>
+  group_by(Diabetes) |>
+  summarise(across(where(is.numeric),
+                   list("median" = median, "mean" = mean, "stdev" = sd),
+                   .names = "{.fn}_{.col}"))|>
+  mutate(across(where(is.numeric), round, 2))
+```
+
+```{r}
+diabetes |>
+  ggplot(aes(Diabetes, BMI)) +
+  geom_violin(aes(fill = Diabetes)) +
+  stat_summary(fun = "mean",
+               geom = "crossbar", 
+               width = 0.5,
+               size = 0.2,
+               colour = "white") +
+  theme(legend.position = "none") +
+  xlab("Diabetes") +
+  ylab("BMI") +
+  ggtitle("Distribution of Diabetes Diagnosis by BMI") +
+  scale_fill_manual(values = c("Yes"="#F51304","No"="#2D8AEB"))
+```
+
+```{r}
+diabetes |>
+  ggplot(aes(PhysHlth)) +
+  geom_density() +
+  theme(legend.position = "none") +
+  xlab("Physical Health") +
+  ggtitle("Distribution of Diabetes Diagnosis by Physical Health") +
+  facet_wrap(~ Diabetes)
+```
+
+```{r}
+diabetes |>
+  ggplot(aes(MentHlth)) +
+  geom_density() +
+  theme(legend.position = "none") +
+  xlab("Mental Health") +
+  ggtitle("Distribution of Diabetes Diagnosis by Menthal Health") +
+  facet_wrap(~ Diabetes)
+```
+
+```{r}
+diabetes |>
+  ggplot(aes(GenHlth)) +
+  geom_histogram(bins = 5, aes(fill = Diabetes), alpha = 0.5) +
+  scale_fill_manual(values = c("Yes"="#F51304","No"="#2D8AEB"))
+```
+
+```{r}
+diabetes |>
+  ggplot() +
+  geom_mosaic(aes(x = product(Age), fill = Diabetes)) +
+  theme(legend.position = "none") +
+  xlab("Age Group") +
+  ylab("Diabetes") +
+  ggtitle("Prevalence of Diabetes Diagnosis by Age Group") +
+  theme(axis.text.x = element_text(angle=90, vjust=.5, hjust=1)) +
+  scale_fill_manual(values = c("Yes"="#F51304","No"="#2D8AEB"))
+```
+
+```{r}
+diabetes |>
+  ggplot() +
+  geom_mosaic(aes(x = product(Income), fill = Diabetes)) +
+  theme(legend.position = "none") +
+  xlab("Income Range") +
+  ylab("Diabetes") +
+  ggtitle("Prevalence of Diabetes Diagnosis by Income Range") +
+  theme(axis.text.x = element_text(angle=90, vjust=.5, hjust=1)) +
+  scale_fill_manual(values = c("Yes"="#F51304","No"="#2D8AEB"))
 ```
 
 ## Modeling
 
-The story continues. For Modeling results, go here: [Modeling Webpage](Modeling.html)
+For Modeling results, go here: [Modeling](Modeling.html)
+
+*The story continues...*

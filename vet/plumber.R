@@ -5,7 +5,7 @@ library(plumber)
 library(rapidoc)
 library(vetiver)
 b <- board_connect(auth = "envvar")
-v <- vetiver_pin_read(b, "rmberin2@ncsu.edu/diabetes-rf", version = "158")
+v <- vetiver_pin_read(b, "rmberin2@ncsu.edu/diabetes-rf", version = "159")
 
 #* @plumber
 function(pr) {

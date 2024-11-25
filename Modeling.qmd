@@ -58,7 +58,7 @@ placeholder text
 ```{r}
 diabetes_rec <-
   recipe(Diabetes ~ ., data = diabetes_train) |>
-  step_rm(CholCheck, Smoker, Stroke, Fruits:NoDocbcCost) #|>
+  step_rm(CholCheck, Smoker, Stroke, PhysActivity:NoDocbcCost, DiffWalk, Education) #|>
   #step_normalize(all_numeric_predictors()) |>
   #step_pca(ends_with("Hlth"), num_comp = 3, prefix = "Hlth")
 ```

@@ -206,7 +206,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>diabetes_rec <span class="ot">&lt;-</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recipe</span>(Diabetes <span class="sc">~</span> ., <span class="at">data =</span> diabetes_train) <span class="sc">|&gt;</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_rm</span>(CholCheck, Smoker, Stroke, Fruits<span class="sc">:</span>NoDocbcCost) <span class="co">#|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_rm</span>(CholCheck, Smoker, Stroke, PhysActivity<span class="sc">:</span>NoDocbcCost, DiffWalk, Education) <span class="co">#|&gt;</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">#step_normalize(all_numeric_predictors()) |&gt;</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">#step_pca(ends_with("Hlth"), num_comp = 3, prefix = "Hlth")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -215,22 +215,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prep</span>(<span class="at">training =</span> diabetes_train) <span class="sc">|&gt;</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bake</span>(diabetes_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 177,575 × 14
-   HighBP HighChol   BMI HeartDiseaseorAttack PhysActivity GenHlth MentHlth
-   &lt;fct&gt;  &lt;fct&gt;    &lt;dbl&gt; &lt;fct&gt;                &lt;fct&gt;          &lt;dbl&gt;    &lt;dbl&gt;
- 1 No     No          25 No                   Yes                3        0
- 2 Yes    Yes         28 No                   No                 5       30
- 3 Yes    No          27 No                   Yes                2        0
- 4 Yes    No          30 No                   No                 3        0
- 5 Yes    Yes         25 No                   Yes                3        0
- 6 No     No          24 No                   No                 2        0
- 7 No     Yes         33 No                   Yes                4       30
- 8 Yes    No          33 No                   Yes                2        5
- 9 Yes    Yes         21 No                   Yes                3        0
-10 Yes    Yes         38 No                   No                 5       15
+<pre><code># A tibble: 177,575 × 11
+   HighBP HighChol   BMI HeartDiseaseorAttack GenHlth MentHlth PhysHlth Sex   
+   &lt;fct&gt;  &lt;fct&gt;    &lt;dbl&gt; &lt;fct&gt;                  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;fct&gt; 
+ 1 No     No          25 No                         3        0        0 Female
+ 2 Yes    Yes         28 No                         5       30       30 Female
+ 3 Yes    No          27 No                         2        0        0 Female
+ 4 Yes    No          30 No                         3        0       14 Female
+ 5 Yes    Yes         25 No                         3        0        0 Female
+ 6 No     No          24 No                         2        0        0 Male  
+ 7 No     Yes         33 No                         4       30       28 Female
+ 8 Yes    No          33 No                         2        5        0 Female
+ 9 Yes    Yes         21 No                         3        0        0 Female
+10 Yes    Yes         38 No                         5       15       30 Female
 # ℹ 177,565 more rows
-# ℹ 7 more variables: PhysHlth &lt;dbl&gt;, DiffWalk &lt;fct&gt;, Sex &lt;fct&gt;, Age &lt;ord&gt;,
-#   Education &lt;ord&gt;, Income &lt;ord&gt;, Diabetes &lt;fct&gt;</code></pre>
+# ℹ 3 more variables: Age &lt;ord&gt;, Income &lt;ord&gt;, Diabetes &lt;fct&gt;</code></pre>
 </div>
 </div>
 <p>Define event level and metrics set.</p>
@@ -275,21 +274,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 20 × 7
    cost_complexity .metric     .estimator  mean     n    std_err .config        
              &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt; &lt;chr&gt;          
- 1        2.95e- 7 mn_log_loss binary     0.332     5 0.00134    Preprocessor1_…
- 2        8.91e- 8 mn_log_loss binary     0.332     5 0.00134    Preprocessor1_…
- 3        5.29e- 6 mn_log_loss binary     0.332     5 0.00134    Preprocessor1_…
- 4        3.70e- 8 mn_log_loss binary     0.332     5 0.00134    Preprocessor1_…
- 5        5.70e- 7 mn_log_loss binary     0.332     5 0.00134    Preprocessor1_…
- 6        4.43e- 9 mn_log_loss binary     0.332     5 0.00134    Preprocessor1_…
- 7        1.11e- 9 mn_log_loss binary     0.332     5 0.00134    Preprocessor1_…
- 8        1.16e- 8 mn_log_loss binary     0.332     5 0.00134    Preprocessor1_…
- 9        4.31e-10 mn_log_loss binary     0.332     5 0.00134    Preprocessor1_…
-10        2.08e- 6 mn_log_loss binary     0.332     5 0.00134    Preprocessor1_…
-11        2.28e-10 mn_log_loss binary     0.332     5 0.00134    Preprocessor1_…
-12        1.99e- 5 mn_log_loss binary     0.332     5 0.00144    Preprocessor1_…
-13        6.48e- 5 mn_log_loss binary     0.334     5 0.000851   Preprocessor1_…
-14        1.90e- 4 mn_log_loss binary     0.350     5 0.00165    Preprocessor1_…
-15        3.81e- 4 mn_log_loss binary     0.355     5 0.00108    Preprocessor1_…
+ 1        2.95e- 7 mn_log_loss binary     0.332     5 0.00149    Preprocessor1_…
+ 2        8.91e- 8 mn_log_loss binary     0.332     5 0.00149    Preprocessor1_…
+ 3        5.29e- 6 mn_log_loss binary     0.332     5 0.00149    Preprocessor1_…
+ 4        3.70e- 8 mn_log_loss binary     0.332     5 0.00149    Preprocessor1_…
+ 5        5.70e- 7 mn_log_loss binary     0.332     5 0.00149    Preprocessor1_…
+ 6        4.43e- 9 mn_log_loss binary     0.332     5 0.00149    Preprocessor1_…
+ 7        1.11e- 9 mn_log_loss binary     0.332     5 0.00149    Preprocessor1_…
+ 8        1.16e- 8 mn_log_loss binary     0.332     5 0.00149    Preprocessor1_…
+ 9        4.31e-10 mn_log_loss binary     0.332     5 0.00149    Preprocessor1_…
+10        2.08e- 6 mn_log_loss binary     0.332     5 0.00149    Preprocessor1_…
+11        2.28e-10 mn_log_loss binary     0.332     5 0.00149    Preprocessor1_…
+12        1.99e- 5 mn_log_loss binary     0.333     5 0.00155    Preprocessor1_…
+13        6.48e- 5 mn_log_loss binary     0.335     5 0.000671   Preprocessor1_…
+14        1.90e- 4 mn_log_loss binary     0.350     5 0.00164    Preprocessor1_…
+15        3.81e- 4 mn_log_loss binary     0.355     5 0.00109    Preprocessor1_…
 16        6.66e- 4 mn_log_loss binary     0.355     5 0.000982   Preprocessor1_…
 17        3.63e- 3 mn_log_loss binary     0.355     5 0.000963   Preprocessor1_…
 18        5.86e- 3 mn_log_loss binary     0.374     5 0.0120     Preprocessor1_…
@@ -324,10 +323,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   .metric     .estimator .estimate .config             
   &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;               
 1 accuracy    binary         0.864 Preprocessor1_Model1
-2 spec        binary         0.981 Preprocessor1_Model1
-3 sens        binary         0.137 Preprocessor1_Model1
-4 mn_log_loss binary         0.329 Preprocessor1_Model1
-5 roc_auc     binary         0.801 Preprocessor1_Model1</code></pre>
+2 spec        binary         0.982 Preprocessor1_Model1
+3 sens        binary         0.135 Preprocessor1_Model1
+4 mn_log_loss binary         0.330 Preprocessor1_Model1
+5 roc_auc     binary         0.797 Preprocessor1_Model1</code></pre>
 </div>
 </div>
 <p>Visualize the classification tree.</p>
@@ -368,8 +367,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-stdout">
 <pre><code>          Truth
 Prediction   Yes    No
-       Yes  1453  1213
-       No   9151 64288</code></pre>
+       Yes  1434  1206
+       No   9170 64295</code></pre>
 </div>
 </div>
 <p>Collect and save final metrics for best Classification Tree model.</p>
@@ -383,10 +382,10 @@ Prediction   Yes    No
   .metric     .estimator .estimate .config             
   &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;               
 1 accuracy    binary         0.864 Preprocessor1_Model1
-2 spec        binary         0.981 Preprocessor1_Model1
-3 sens        binary         0.137 Preprocessor1_Model1
-4 mn_log_loss binary         0.329 Preprocessor1_Model1
-5 roc_auc     binary         0.801 Preprocessor1_Model1</code></pre>
+2 spec        binary         0.982 Preprocessor1_Model1
+3 sens        binary         0.135 Preprocessor1_Model1
+4 mn_log_loss binary         0.330 Preprocessor1_Model1
+5 roc_auc     binary         0.797 Preprocessor1_Model1</code></pre>
 </div>
 </div>
 </section>
@@ -428,13 +427,13 @@ Prediction   Yes    No
 <span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(mean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 7
-   mtry .metric     .estimator  mean     n std_err .config             
-  &lt;int&gt; &lt;chr&gt;       &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-1     3 mn_log_loss binary     0.318     5 0.00109 Preprocessor1_Model2
-2     5 mn_log_loss binary     0.323     5 0.00149 Preprocessor1_Model5
-3     8 mn_log_loss binary     0.332     5 0.00223 Preprocessor1_Model1
-4    10 mn_log_loss binary     0.339     5 0.00292 Preprocessor1_Model3
-5    12 mn_log_loss binary     0.342     5 0.00263 Preprocessor1_Model4</code></pre>
+   mtry .metric     .estimator  mean     n  std_err .config             
+  &lt;int&gt; &lt;chr&gt;       &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;chr&gt;               
+1     2 mn_log_loss binary     0.317     5 0.000830 Preprocessor1_Model2
+2     4 mn_log_loss binary     0.323     5 0.00120  Preprocessor1_Model5
+3     6 mn_log_loss binary     0.332     5 0.00177  Preprocessor1_Model1
+4     8 mn_log_loss binary     0.342     5 0.00200  Preprocessor1_Model3
+5     9 mn_log_loss binary     0.346     5 0.00206  Preprocessor1_Model4</code></pre>
 </div>
 </div>
 <p>Identify parameter combination with lowest Log Loss.</p>
@@ -447,7 +446,7 @@ Prediction   Yes    No
 <pre><code># A tibble: 1 × 2
    mtry .config             
   &lt;int&gt; &lt;chr&gt;               
-1     3 Preprocessor1_Model2</code></pre>
+1     2 Preprocessor1_Model2</code></pre>
 </div>
 </div>
 <p>Using the best model, fit the model to the entire training data set using the <code>last_fit()</code> function. Compute the Log Loss and Accuracy metrics on the test set.</p>
@@ -463,11 +462,11 @@ Prediction   Yes    No
 <pre><code># A tibble: 5 × 4
   .metric     .estimator .estimate .config             
   &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;               
-1 accuracy    binary         0.865 Preprocessor1_Model1
-2 spec        binary         0.985 Preprocessor1_Model1
-3 sens        binary         0.129 Preprocessor1_Model1
+1 accuracy    binary         0.866 Preprocessor1_Model1
+2 spec        binary         0.989 Preprocessor1_Model1
+3 sens        binary         0.101 Preprocessor1_Model1
 4 mn_log_loss binary         0.317 Preprocessor1_Model1
-5 roc_auc     binary         0.822 Preprocessor1_Model1</code></pre>
+5 roc_auc     binary         0.824 Preprocessor1_Model1</code></pre>
 </div>
 </div>
 <p>Produce a variable importance plot.</p>
@@ -494,8 +493,8 @@ Prediction   Yes    No
 <div class="cell-output cell-output-stdout">
 <pre><code>          Truth
 Prediction   Yes    No
-       Yes  1453  1213
-       No   9151 64288</code></pre>
+       Yes  1434  1206
+       No   9170 64295</code></pre>
 </div>
 </div>
 <p>Collect final Log Loss and Accuracy metrics for best Random Forest model.</p>
@@ -508,11 +507,11 @@ Prediction   Yes    No
 <pre><code># A tibble: 5 × 4
   .metric     .estimator .estimate .config             
   &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;               
-1 accuracy    binary         0.865 Preprocessor1_Model1
-2 spec        binary         0.985 Preprocessor1_Model1
-3 sens        binary         0.129 Preprocessor1_Model1
+1 accuracy    binary         0.866 Preprocessor1_Model1
+2 spec        binary         0.989 Preprocessor1_Model1
+3 sens        binary         0.101 Preprocessor1_Model1
 4 mn_log_loss binary         0.317 Preprocessor1_Model1
-5 roc_auc     binary         0.822 Preprocessor1_Model1</code></pre>
+5 roc_auc     binary         0.824 Preprocessor1_Model1</code></pre>
 </div>
 </div>
 </section>
@@ -528,7 +527,7 @@ Prediction   Yes    No
 <pre><code># A tibble: 2 × 2
   model               mean_mn_log_loss
   &lt;chr&gt;                          &lt;dbl&gt;
-1 Classification Tree            0.329
+1 Classification Tree            0.330
 2 Random Forest                  0.317</code></pre>
 </div>
 </div>
@@ -541,8 +540,8 @@ Prediction   Yes    No
 <pre><code># A tibble: 2 × 2
   model               mean_roc_auc
   &lt;chr&gt;                      &lt;dbl&gt;
-1 Classification Tree        0.801
-2 Random Forest              0.822</code></pre>
+1 Classification Tree        0.797
+2 Random Forest              0.824</code></pre>
 </div>
 </div>
 <p>The Random Forest model performs slightly better on both metrics so that will serve as our final model.</p>
