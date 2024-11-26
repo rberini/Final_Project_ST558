@@ -409,11 +409,11 @@ $ Income               &lt;dbl&gt; 3, 1, 8, 6, 4, 8, 7, 4, 1, 3, 8, 1, 7, 6, 2, 
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  diabetes <span class="sc">|&gt;</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Age =</span> <span class="fu">factor</span>(Age, </span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">levels =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">13</span>, </span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Age 18 - 24"</span>, <span class="st">"Age 25 to 29"</span>, <span class="st">"Age 30 to 34"</span>, </span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                                 <span class="st">"Age 35 to 39"</span>, <span class="st">"Age 40 to 44"</span>, <span class="st">"Age 45 to 49"</span>, </span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                                 <span class="st">"Age 50 to 54"</span>, <span class="st">"Age 55 to 59"</span>, <span class="st">"Age 60 to 64"</span>, </span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>                                 <span class="st">"Age 65 to 69"</span>, <span class="st">"Age 70 to 74"</span>, <span class="st">"Age 75 to 79"</span>, </span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>                                 <span class="st">"Age 80 or older"</span>),</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"18 to 24"</span>, <span class="st">"25 to 29"</span>, <span class="st">"30 to 34"</span>, </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                                 <span class="st">"35 to 39"</span>, <span class="st">"40 to 44"</span>, <span class="st">"45 to 49"</span>, </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                                 <span class="st">"50 to 54"</span>, <span class="st">"55 to 59"</span>, <span class="st">"60 to 64"</span>, </span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>                                 <span class="st">"65 to 69"</span>, <span class="st">"70 to 74"</span>, <span class="st">"75 to 79"</span>, </span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>                                 <span class="st">"80 or older"</span>),</span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>                      <span class="at">ordered =</span> T)) <span class="sc">|&gt;</span></span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Education =</span> <span class="fu">factor</span>(Education, </span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>                            <span class="at">levels =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, </span>
@@ -460,7 +460,7 @@ $ MentHlth             &lt;dbl&gt; 18, 0, 30, 0, 3, 0, 0, 0, 30, 0, 0, 0, 0, 0, 
 $ PhysHlth             &lt;dbl&gt; 15, 0, 30, 0, 0, 2, 14, 0, 30, 0, 0, 30, 15, 0, 2…
 $ DiffWalk             &lt;fct&gt; Yes, No, Yes, No, No, No, No, Yes, Yes, No, No, Y…
 $ Sex                  &lt;fct&gt; Female, Female, Female, Female, Female, Male, Fem…
-$ Age                  &lt;ord&gt; Age 60 to 64, Age 50 to 54, Age 60 to 64, Age 70 …
+$ Age                  &lt;ord&gt; 60 to 64, 50 to 54, 60 to 64, 70 to 74, 70 to 74,…
 $ Education            &lt;ord&gt; High school graduate, College graduate, High scho…
 $ Income               &lt;ord&gt; "$15,000 to less than $20,000", "Less than $10,00…</code></pre>
 </div>
@@ -516,48 +516,34 @@ PhysHlth 0.02</code></pre>
                                                                               
                                                                               
                                                                               
- AnyHealthcare NoDocbcCost  DiffWalk         Sex        
- Yes:241263    Yes: 21354   Yes: 42675   Male  :111706  
- No : 12417    No :232326   No :211005   Female:141974  
-                                                        
-                                                        
-                                                        
-                                                        
-                                                        
-                                                        
-                                                        
-                                                        
-                                                        
-                                                        
-                                                        
-              Age                                   Education     
- Age 18 - 24    : 5700   No school or only kindergarten  :   174  
- Age 25 to 29   : 7598   Elementary                      :  4043  
- Age 30 to 34   :11123   Some high school                :  9478  
- Age 35 to 39   :13823   High school graduate            : 62750  
- Age 40 to 44   :16157   Some college or technical school: 69910  
- Age 45 to 49   :19819   College graduate                :107325  
- Age 50 to 54   :26314                                            
- Age 55 to 59   :30832                                            
- Age 60 to 64   :33244                                            
- Age 65 to 69   :32194                                            
- Age 70 to 74   :23533                                            
- Age 75 to 79   :15980                                            
- Age 80 or older:17363                                            
-                          Income     
- Less than $10,000           : 9811  
- $10,000 to less than $15,000:11783  
- $15,000 to less than $20,000:15994  
- $20,000 to less than $25,000:20135  
- $25,000 to less than $35,000:25883  
- $35,000 to less than $50,000:36470  
- $50,000 to less than $75,000:43219  
- $75,000 or more             :90385  
-                                     
-                                     
-                                     
-                                     
-                                     </code></pre>
+ AnyHealthcare NoDocbcCost  DiffWalk         Sex                  Age       
+ Yes:241263    Yes: 21354   Yes: 42675   Male  :111706   18 to 24   : 5700  
+ No : 12417    No :232326   No :211005   Female:141974   25 to 29   : 7598  
+                                                         30 to 34   :11123  
+                                                         35 to 39   :13823  
+                                                         40 to 44   :16157  
+                                                         45 to 49   :19819  
+                                                         50 to 54   :26314  
+                                                         55 to 59   :30832  
+                                                         60 to 64   :33244  
+                                                         65 to 69   :32194  
+                                                         70 to 74   :23533  
+                                                         75 to 79   :15980  
+                                                         80 or older:17363  
+                            Education                               Income     
+ No school or only kindergarten  :   174   Less than $10,000           : 9811  
+ Elementary                      :  4043   $10,000 to less than $15,000:11783  
+ Some high school                :  9478   $15,000 to less than $20,000:15994  
+ High school graduate            : 62750   $20,000 to less than $25,000:20135  
+ Some college or technical school: 69910   $25,000 to less than $35,000:25883  
+ College graduate                :107325   $35,000 to less than $50,000:36470  
+                                           $50,000 to less than $75,000:43219  
+                                           $75,000 or more             :90385  
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               </code></pre>
 </div>
 </div>
 <p>Save manipulated data set.</p>
@@ -573,7 +559,8 @@ PhysHlth 0.02</code></pre>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>diabetes <span class="sc">|&gt;</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Diabetes)) <span class="sc">+</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Diabetes)) <span class="sc">+</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Yes"</span><span class="ot">=</span><span class="st">"#F51304"</span>,<span class="st">"No"</span><span class="ot">=</span><span class="st">"#2D8AEB"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">'none'</span>) <span class="sc">+</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Yes"</span><span class="ot">=</span><span class="st">"#F51304"</span>,<span class="st">"No"</span><span class="ot">=</span><span class="st">"#2D8AEB"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -769,7 +756,7 @@ PhysHlth 0.121    0.52    0.354     1.00</code></pre>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>() <span class="sc">+</span></span>
 <span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
 <span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Mental Health"</span>) <span class="sc">+</span></span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Distribution of Diabetes Diagnosis by Menthal Health"</span>) <span class="sc">+</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Distribution of Diabetes Diagnosis by Mental Health"</span>) <span class="sc">+</span></span>
 <span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> Diabetes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
@@ -783,7 +770,9 @@ PhysHlth 0.121    0.52    0.354     1.00</code></pre>
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>diabetes <span class="sc">|&gt;</span></span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(GenHlth)) <span class="sc">+</span></span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">5</span>, <span class="fu">aes</span>(<span class="at">fill =</span> Diabetes), <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Yes"</span><span class="ot">=</span><span class="st">"#F51304"</span>,<span class="st">"No"</span><span class="ot">=</span><span class="st">"#2D8AEB"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"General Health"</span>) <span class="sc">+</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Distribution of Diabetes Diagnosis by General Health"</span>) <span class="sc">+</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Yes"</span><span class="ot">=</span><span class="st">"#F51304"</span>,<span class="st">"No"</span><span class="ot">=</span><span class="st">"#2D8AEB"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">

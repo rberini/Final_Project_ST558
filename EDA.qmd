@@ -76,11 +76,11 @@ diabetes <-
   diabetes |>
   mutate(Age = factor(Age, 
                       levels = 1:13, 
-                      labels = c("Age 18 - 24", "Age 25 to 29", "Age 30 to 34", 
-                                 "Age 35 to 39", "Age 40 to 44", "Age 45 to 49", 
-                                 "Age 50 to 54", "Age 55 to 59", "Age 60 to 64", 
-                                 "Age 65 to 69", "Age 70 to 74", "Age 75 to 79", 
-                                 "Age 80 or older"),
+                      labels = c("18 to 24", "25 to 29", "30 to 34", 
+                                 "35 to 39", "40 to 44", "45 to 49", 
+                                 "50 to 54", "55 to 59", "60 to 64", 
+                                 "65 to 69", "70 to 74", "75 to 79", 
+                                 "80 or older"),
                       ordered = T)) |>
   mutate(Education = factor(Education, 
                             levels = 1:6, 
@@ -137,6 +137,7 @@ Frequency of diabetes diagnosis across the data set.
 diabetes |>
   ggplot(aes(x = Diabetes)) +
   geom_bar(aes(fill = Diabetes)) +
+  theme(legend.position='none') +
   scale_fill_manual(values = c("Yes"="#F51304","No"="#2D8AEB"))
 ```
 
@@ -225,7 +226,7 @@ diabetes |>
   geom_density() +
   theme(legend.position = "none") +
   xlab("Mental Health") +
-  ggtitle("Distribution of Diabetes Diagnosis by Menthal Health") +
+  ggtitle("Distribution of Diabetes Diagnosis by Mental Health") +
   facet_wrap(~ Diabetes)
 ```
 
@@ -233,6 +234,8 @@ diabetes |>
 diabetes |>
   ggplot(aes(GenHlth)) +
   geom_histogram(bins = 5, aes(fill = Diabetes), alpha = 0.5) +
+  xlab("General Health") +
+  ggtitle("Distribution of Diabetes Diagnosis by General Health") +
   scale_fill_manual(values = c("Yes"="#F51304","No"="#2D8AEB"))
 ```
 
