@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.57">
+<meta name="generator" content="quarto-1.6.39">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -69,10 +69,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-79108a0fc1995748cbd19a5b0e3e3e7c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -140,6 +140,41 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<section id="introduction-and-overview" class="level2">
+<h2 class="anchored" data-anchor-id="introduction-and-overview">Introduction and overview</h2>
+<p>This project considers the Diabetes Health Indicators data set. The data is drawn from a 2015 Behavioral Risk Factor Surveillance System (BRFSS) survey conducted by the Centers for Disease Control and Prevention (CDC).</p>
+<p>This investigation and analysis considers whether answers to these survey questions might prove useful in predicting a diabetes diagnosis, and, if so, which subset of potential predictors should be considered in modeling.</p>
+<p>There are 253,680 obervations in the data set and 21 potential predictors.</p>
+<p>Additional information on the data set and survey can be found via the links below:</p>
+<p><a href="https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset/?select=diabetes_binary_health_indicators_BRFSS2015.csv" title="Diabetes Dataset">Diabetes Dataset</a></p>
+<p><a href="https://www.cdc.gov/brfss/annual_data/2015/pdf/CODEBOOK15_LLCP.pdf" title="Codebook">Codebook for Variables</a></p>
+<section id="about-the-variables" class="level3">
+<h3 class="anchored" data-anchor-id="about-the-variables">About the variables</h3>
+<p>Variables in the data set include:</p>
+<p><strong>Diabetes</strong>: whether the individual received a diabetes (or prediabetes) diagnosis (“Yes” or “No”) <em>this is the repsonse variable</em></p>
+<p><strong>HighBP</strong>: whether or not the individual had ever been diagnosed with high blood pressure (“Yes” or “No”)</p>
+<p><strong>HighChol</strong>: whether or not the individual had ever been diagnosed with high cholesterol (“Yes” or “No”)</p>
+<p><strong>CholCheck</strong>: whether or not the individual had cholesterol levels checked within the past five years (“Yes” or “No”)</p>
+<p><strong>BMI</strong>: body mass index of the individual (numeric value)</p>
+<p><strong>Smoker</strong>: whether or not the individual had smoked at least 100 cigarettes over entire life (“Yes” or “No”)</p>
+<p><strong>Stroke</strong>: whether or not the individual had ever had a stroke (“Yes” or “No”)</p>
+<p><strong>HeartDiseaseorAttack</strong>: whether or not the individual had ever had coronary heart disease or myocardial infarction (“Yes” or “No”)</p>
+<p><strong>PhysActivity</strong>: whether or not the individual had been physically active in the prior 30 days (“Yes” or “No”)</p>
+<p><strong>Fruits</strong>: whether or not the individual had consumed fruit one or more times per day in the prior 30 days (“Yes” or “No”)</p>
+<p><strong>Veggies</strong>: whether or not the individual had consumed vegetables one or more times per day in the prior 30 days (“Yes” or “No”)</p>
+<p><strong>HvyAlcoholConsump</strong>: whether or not the individual would be considered a heavy drinker based upon reported alcohol consumption behaviors over the prior 30 days (“Yes” or “No”)</p>
+<p><strong>AnyHealthcare</strong>: whether or not the individual had any form of healthcare coverage (“Yes” or “No”)</p>
+<p><strong>NoDocbcCost</strong>: whether or not the individual had at any time during the prior 12 months needed to see a doctor but could not because of cost (“Yes” or “No”)</p>
+<p><strong>GenHlth</strong>: the individual’s self-assessment of his or her general health (from 1 for excellent to 5 for poor)</p>
+<p><strong>MentHlth</strong>: days of poor mental health over the prior 30 days (numeric value)</p>
+<p><strong>PhysHlth</strong>: days of physical illness or injury over the prior 30 days (numeric value)</p>
+<p><strong>DiffWalk</strong>: whether or not the individual faced serious difficulty walking or climbing stairs (“Yes” or “No”)</p>
+<p><strong>Sex</strong>: indicated sex of respondent (“Female” or “Male”</p>
+<p><strong>Age</strong>: indicated age group of respondent (“18 to 24”, “25 to 29”, “30 to 34”, “35 to 39”, “40 to 44”, “45 to 49”, “50 to 54”, “55 to 59”, “60 to 64”, “65 to 69”, “70 to 74”, “75 to 79”, “80 or older”)</p>
+<p><strong>Education</strong>: indicated highest grade or year of school completed (“No school or only kindergarten”, “Elementary”, “Some high school”, “High school graduate”, “Some college or technical school”, “College graduate”)</p>
+<p><strong>Income</strong>: indicated household income group (“Less than $10,000”, “$10,000 to less than $15,000”, “$15,000 to less than $20,000”, “$20,000 to less than $25,000”, “$25,000 to less than $35,000”, “$35,000 to less than $50,000”, “$50,000 to less than $75,000”, “$75,000 or more”)</p>
+</section>
+</section>
 <section id="load-required-packages" class="level2">
 <h2 class="anchored" data-anchor-id="load-required-packages">Load required packages</h2>
 <div class="cell">
@@ -159,6 +194,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="read-data" class="level2">
 <h2 class="anchored" data-anchor-id="read-data">Read data</h2>
+<p>Read in data from the Kaggle source indicated in introduction.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>diabetes_raw <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/diabetes_binary_health_indicators_BRFSS2015.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -195,7 +231,7 @@ $ Education            &lt;dbl&gt; 4, 6, 4, 3, 5, 6, 6, 4, 5, 4, 6, 5, 5, 4, 6, 
 $ Income               &lt;dbl&gt; 3, 1, 8, 6, 4, 8, 7, 4, 1, 3, 8, 1, 7, 6, 2, 8, 3…</code></pre>
 </div>
 </div>
-<p>Check for any missing values.</p>
+<p>Check for any missing values. None are found.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>diabetes_raw <span class="sc">|&gt;</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">skim</span>() <span class="sc">|&gt;</span></span>
@@ -385,13 +421,12 @@ $ Income               &lt;dbl&gt; 3, 1, 8, 6, 4, 8, 7, 4, 1, 3, 8, 1, 7, 6, 2, 
 </table>
 </div>
 </div>
-<p>Reassign column types.</p>
+<p>Assign a named vector for the numeric variables as described in the introduction: <code>BMI</code>, <code>MentHlth</code>, and <code>PhysHlth</code>. Consistent with social science research practices, treat <code>GenHlth</code> Likert-scale question as interval data (although technically ordinal), and, as such, include among the numeric variables. Assign a named vector for the multilevel factors as described in the introduction: <code>Age</code>, <code>Education</code>, and <code>Income</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#consistent with social science practices, treating GenHlth Likert scale as an interval scale</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>true_numeric_cols <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"BMI"</span>, <span class="st">"GenHlth"</span>, <span class="st">"MentHlth"</span>, <span class="st">"PhysHlth"</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>multi_fac_cols <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Age"</span>, <span class="st">"Education"</span>, <span class="st">"Income"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>true_numeric_cols <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"BMI"</span>, <span class="st">"GenHlth"</span>, <span class="st">"MentHlth"</span>, <span class="st">"PhysHlth"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>multi_fac_cols <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Age"</span>, <span class="st">"Education"</span>, <span class="st">"Income"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Create factors for binary variables.</p>
+<p>Rename the <code>Diabetes_binary</code> variable to <code>Diabetes</code> for simplicity. Create factors for binary variables: <code>Sex</code> and all the “Yes”/“No” variables described in the introduction.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>diabetes <span class="ot">&lt;-</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  diabetes_raw <span class="sc">|&gt;</span></span>
@@ -403,7 +438,7 @@ $ Income               &lt;dbl&gt; 3, 1, 8, 6, 4, 8, 7, 4, 1, 3, 8, 1, 7, 6, 2, 
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">|&gt;</span></span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.factor), fct_rev)) <span class="co">#so modeling correctly reflects positive class</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Create factors for multi-level variables.</p>
+<p>Create ordered factors for multilevel variables: <code>Age</code>, <code>Education</code>, and <code>Income</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>diabetes <span class="ot">&lt;-</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  diabetes <span class="sc">|&gt;</span></span>
@@ -436,6 +471,7 @@ $ Income               &lt;dbl&gt; 3, 1, 8, 6, 4, 8, 7, 4, 1, 3, 8, 1, 7, 6, 2, 
 <span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>                                    <span class="st">"$75,000 or more"</span>),</span>
 <span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>                         <span class="at">ordered =</span> T))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Confirm changes to variable types.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(diabetes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -465,7 +501,7 @@ $ Education            &lt;ord&gt; High school graduate, College graduate, High 
 $ Income               &lt;ord&gt; "$15,000 to less than $20,000", "Less than $10,00…</code></pre>
 </div>
 </div>
-<p>Generate basic summary statistics for numeric columns and check the unique values for the categorical variables.</p>
+<p>Generate basic summary statistics for numeric columns.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>diabetes <span class="sc">|&gt;</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">where</span>(is.numeric)) <span class="sc">|&gt;</span></span>
@@ -483,6 +519,7 @@ MentHlth 0.01
 PhysHlth 0.02</code></pre>
 </div>
 </div>
+<p>Check unique values for the categorical variables.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>diabetes <span class="sc">|&gt;</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">where</span>(is.factor)) <span class="sc">|&gt;</span></span>
@@ -546,15 +583,16 @@ PhysHlth 0.02</code></pre>
                                                                                </code></pre>
 </div>
 </div>
-<p>Save manipulated data set.</p>
+<p>Save manipulated data set for use in modeling phase.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(diabetes, <span class="st">"data/diabetes.rds"</span>)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(diabetes, <span class="at">file =</span> <span class="st">"data/diabetes.RData"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>In Exploratory Data Analysis and Modeling, the following variables are excluded from consideration based upon early stage modeling which revealed them to have lower variable importance in many decision tree models: <code>CholCheck</code>, <code>Smoker</code>, <code>Stroke</code>, <code>PhysActivity</code>, <code>Fruits</code>, <code>Veggies</code>, <code>HvyAlcoholConsump</code>, <code>AnyHealthcare</code>, <code>NoDocbcCost</code>, <code>DiffWalk</code>, and <code>Education</code>. To retain the integrity of the full data set, these variables are not removed in the saved data set. Instead, <code>step_rm</code> is used during recipe definition in the Modeling phase to exclude these variables.</p>
 </section>
 <section id="eda" class="level2">
 <h2 class="anchored" data-anchor-id="eda">EDA</h2>
-<p>Frequency of diabetes diagnosis across the data set.</p>
+<p>Determine frequency of diabetes diagnoses across the data set.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>diabetes <span class="sc">|&gt;</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Diabetes)) <span class="sc">+</span></span>
@@ -569,7 +607,7 @@ PhysHlth 0.02</code></pre>
 </div>
 </div>
 </div>
-<p>Percentage of diabetes diagnosis across the data set.</p>
+<p>Determine the percentage of diabetes diagnoses across the data set.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>diabetes <span class="sc">|&gt;</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tabyl</span>(Diabetes) <span class="sc">|&gt;</span></span>
@@ -582,6 +620,8 @@ PhysHlth 0.02</code></pre>
     Total 253680  100.0%</code></pre>
 </div>
 </div>
+<p>The positive class (i.e., “Yes” on <code>Diabetes</code>) appears in less than 14% of cases. This suggests we may wish to consider stratification in the train-test split and cross-validation folds.</p>
+<p>Explore the percentage of diabetes diagnoses relative to the sex of the respondent.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>diabetes <span class="sc">|&gt;</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tabyl</span>(Sex, Diabetes) <span class="sc">|&gt;</span></span>
@@ -595,6 +635,8 @@ PhysHlth 0.02</code></pre>
  Female    13.0% 87.0%</code></pre>
 </div>
 </div>
+<p>The relative occurrence of diabetes diagnosis does not appear to differ drastically based on sex.</p>
+<p>Explore the percentage of diabetes diagnoses relative to whether or not the respondent had ever been diagnosed with high blood pressure</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>diabetes <span class="sc">|&gt;</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tabyl</span>(HighBP, Diabetes) <span class="sc">|&gt;</span></span>
@@ -634,6 +676,7 @@ MentHlth 0.085    0.30    1.000     0.35
 PhysHlth 0.121    0.52    0.354     1.00</code></pre>
 </div>
 </div>
+<p>For most combinations, there appears to be only weak correlation. The highest is <code>GenHlth</code> with <code>PhysHlth</code>, but this is still only a medium-strength correlation. This suggests we would not be particularly concerned with multicollinearity across these numeric variables.</p>
 <p>Get summary statistics grouped by diabetes diagnosis.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>diabetes <span class="sc">|&gt;</span></span>
@@ -769,7 +812,7 @@ PhysHlth 0.121    0.52    0.354     1.00</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>diabetes <span class="sc">|&gt;</span></span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(GenHlth)) <span class="sc">+</span></span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">5</span>, <span class="fu">aes</span>(<span class="at">fill =</span> Diabetes), <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">5</span>, <span class="fu">aes</span>(<span class="at">fill =</span> Diabetes)) <span class="sc">+</span></span>
 <span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"General Health"</span>) <span class="sc">+</span></span>
 <span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Distribution of Diabetes Diagnosis by General Health"</span>) <span class="sc">+</span></span>
 <span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Yes"</span><span class="ot">=</span><span class="st">"#F51304"</span>,<span class="st">"No"</span><span class="ot">=</span><span class="st">"#2D8AEB"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -909,8 +952,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   });
   clipboard.on('success', onCopySuccess);
   if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    // For code content inside modals, clipBoardJS needs to be initialized with a container option
-    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
     const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
       text: getTextToCopy,
       container: window.document.getElementById('quarto-embedded-source-code-modal')
@@ -1021,7 +1062,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       if (window.Quarto?.typesetMath) {
         window.Quarto.typesetMath(note);
       }
-      // TODO in 1.5, we should make sure this works without a callout special case
       if (note.classList.contains("callout")) {
         return note.outerHTML;
       } else {

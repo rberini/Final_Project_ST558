@@ -59,8 +59,7 @@ placeholder text
 diabetes_rec <-
   recipe(Diabetes ~ ., data = diabetes_train) |>
   step_rm(CholCheck, Smoker, Stroke, PhysActivity:NoDocbcCost, DiffWalk, Education) #|>
-  #step_normalize(all_numeric_predictors()) |>
-  #step_pca(ends_with("Hlth"), num_comp = 3, prefix = "Hlth")
+  #step_normalize(all_numeric_predictors()) this step removed as not needed for trees
 ```
 
 ```{r}
@@ -188,7 +187,7 @@ rf_mod <- rand_forest(mtry = tune(),
   set_mode("classification")
 ```
 
-Create workflow using recipe 1.
+Create workflow using recipe and model.
 
 ```{r}
 diabetes_rf_wfl <- 
@@ -212,7 +211,7 @@ rf_fits <-
 plan(sequential)
 ```
 
-Sort models by tuned parameters with lowest Log Loss.
+Sort models by tuned `mtry` parameter with lowest Log Loss.
 
 ```{r}
 rf_fits |>
@@ -264,7 +263,7 @@ rf_conf_matrix <-conf_mat(rf_predictions, truth = Diabetes, estimate = .pred_cla
 rf_conf_matrix
 ```
 
-Collect final Log Loss and Accuracy metrics for best Random Forest model.
+Collect and save final metrics for best Random Forest model.
 
 ```{r}
 
@@ -299,6 +298,6 @@ The Random Forest model performs slightly better on both metrics so that will se
 Save best model.
 
 ```{r}
-save(diabetes_rf_final_model, file = "diabetes_rf_final_model.RData")
-save(diabetes_rf_final_fit, file = "diabetes_rf_final_fit.RData")
+save(diabetes_rf_final_model, file = "model/diabetes_rf_final_model.RData")
+save(diabetes_rf_final_fit, file = "model/diabetes_rf_final_fit.RData")
 ```

@@ -1,21 +1,23 @@
-library(tidyverse)
-library(tidymodels)
-library(baguette)
-library(vip)
+library(readr)
+library(dplyr)
+library(tibble)
+library(ranger)
+library(workflows)
+library(parsnip)
+library(yardstick)
 library(vetiver)
 library(pins)
 library(plumber)
-
-tidymodels_prefer()
 
 options(scipen = 999, digits = 2)
 
 curdir <- getwd()
 setwd("./vet")
 
-load("../data/diabetes.RData")
-load("../diabetes_rf_final_model.RData")
-load("../diabetes_rf_final_fit.RData")
+diabetes <- readRDS("../data/diabetes.rds")
+
+load("../model/diabetes_rf_final_model.RData")
+load("../model/diabetes_rf_final_fit.RData")
 
 data(diabetes)
 

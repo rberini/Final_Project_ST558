@@ -1,16 +1,20 @@
-library(tidyverse)
-library(tidymodels)
+library(readr)
+library(dplyr)
+library(tibble)
+library(ranger)
+library(workflows)
+library(parsnip)
+library(yardstick)
 library(plumber)
-
-tidymodels_prefer()
 
 options(scipen = 999, digits = 2)
 
-load("data/diabetes.RData")
-load("diabetes_rf_final_model.RData")
-load("diabetes_rf_final_fit.RData")
+diabetes <- readRDS("data/diabetes.rds")
 
-attach(diabetes)
+load("model/diabetes_rf_final_model.RData")
+load("model/diabetes_rf_final_fit.RData")
+
+data(diabetes)
 
 invisible(diabetes_rf_final_model)
 
@@ -51,7 +55,7 @@ pred_defaults
 #* __Example calls:__
 #* - `/pred?highbp=Yes&highchol=Yes&bmi=80&heartdiseaseorattack=Yes&genhlth=2&menthlth=2&physhlth=2&sex=Male&age=70%20to%2074&income=%2410%2C000%20to%20less%20than%20%2415%2C000`
 #* - `/pred?highbp=No&highchol=No&bmi=25&heartdiseaseorattack=No&genhlth=1&menthlth=2&physhlth=2&sex=Female&age=25%20to%2029&income=%2450%2C000%20to%20less%20than%20%2475%2C000`
-#* - `/pred?highbp=No&highchol=No&bmi=50&heartdiseaseorattack=No&genhlth=5&menthlth=0&physhlth=0&sex=Male&age=60%20to%2064&income=%2475%2C000%20or%20more`
+#* - `/pred?highbp=Yes&highchol=Yes&bmi=90&heartdiseaseorattack=Yes&genhlth=5&menthlth=30&physhlth=30&sex=Male&age=70%20to%2074&income=%2410%2C000%20to%20less%20than%20%2415%2C000`
 #* - `/pred` (uses all default values)
 #* 
 #* @param highbp Yes or No
@@ -67,15 +71,15 @@ pred_defaults
 #* 
 #* @get /pred
 pred_diabetes <- function(highbp = pred_defaults$HighBP,
-                        highchol = pred_defaults$HighChol,
-                        bmi = pred_defaults$BMI,
-                        heartdiseaseorattack = pred_defaults$HeartDiseaseorAttack,
-                        genhlth = pred_defaults$GenHlth,
-                        menthlth = pred_defaults$MentHlth,
-                        physhlth = pred_defaults$PhysHlth,
-                        sex = pred_defaults$Sex,
-                        age = pred_defaults$Age,
-                        income = pred_defaults$Income) {
+                          highchol = pred_defaults$HighChol,
+                          bmi = pred_defaults$BMI,
+                          heartdiseaseorattack = pred_defaults$HeartDiseaseorAttack,
+                          genhlth = pred_defaults$GenHlth,
+                          menthlth = pred_defaults$MentHlth,
+                          physhlth = pred_defaults$PhysHlth,
+                          sex = pred_defaults$Sex,
+                          age = pred_defaults$Age,
+                          income = pred_defaults$Income) {
   pred_tibble <-
     tibble(
       Diabetes = pred_defaults$Diabetes,
@@ -100,7 +104,7 @@ pred_diabetes <- function(highbp = pred_defaults$HighBP,
       Age = age,
       Education = pred_defaults$Education,
       Income = income
-  )
+    )
   
   temp_pred <-
     diabetes_rf_final_fit |>
@@ -113,7 +117,7 @@ pred_diabetes <- function(highbp = pred_defaults$HighBP,
     predict(pred_tibble, type = "prob")
   
   pred <-
-    bind_cols(temp_pred, temp_prob, pred_tibble |> select(-Diabetes))
+    bind_cols(temp_prob, temp_pred, pred_tibble |> select(-Diabetes))
   
   return(pred)
 }
@@ -129,7 +133,7 @@ function() {
   <html>
   <head><title>Plumber HTML</title></head>
   <body>
-    <h4>Rob Berini</h4>
+    <h4>Robert Berini</h4>
     <a href='https://rberini.github.io/Final_Project_ST558/'>Final Project Website</a>
   </body>
   </html>"
@@ -149,5 +153,5 @@ function() {
   
   conf_matrix <-conf_mat(predictions, truth = Diabetes, estimate = .pred_class)
   conf_matrix
-  }
+}
 
