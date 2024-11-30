@@ -14,7 +14,7 @@ This project considers the Diabetes Health Indicators data set. The data is draw
 
 This investigation and analysis considers whether answers to these survey questions might prove useful in predicting a diabetes diagnosis, and, if so, which subset of potential predictors should be considered in modeling.
 
-There are 253,680 obervations in the data set and 21 potential predictors.
+There are 253,680 observations in the data set and 21 potential predictors.
 
 Additional information on the data set and survey can be found via the links below:
 
@@ -26,7 +26,7 @@ Additional information on the data set and survey can be found via the links bel
 
 Variables in the data set include:
 
-**Diabetes**: whether the individual received a diabetes (or prediabetes) diagnosis ("Yes" or "No") *this is the repsonse variable*
+**Diabetes**: whether the individual received a diabetes (or prediabetes) diagnosis ("Yes" or "No") *this is the response variable*
 
 **HighBP**: whether or not the individual had ever been diagnosed with high blood pressure ("Yes" or "No")
 
@@ -103,13 +103,17 @@ Explore columns names, column types, and values.
 glimpse(diabetes_raw)
 ```
 
-Check for any missing values. None are found.
+All columns are reading in as `double` type. This does not align with the variable descriptions in the introduction. We will address this shortly.
+
+Check for any missing values.
 
 ```{r}
 diabetes_raw |>
   skim() |>
   focus(n_missing, complete_rate, numeric.hist)
 ```
+
+There are no missing or values outside the ranges outlined in the variable descriptions in the introduction. The data appears to be clean. The mini-histogram confirms most of the variables to be binary. The Mental Health and Physical Health variables look to be highly skewed. We will investigate this further below.
 
 Assign a named vector for the numeric variables as described in the introduction: `BMI`, `MentHlth`, and `PhysHlth`. Consistent with social science research practices, treat `GenHlth` Likert-scale question as interval data (although technically ordinal), and, as such, include among the numeric variables. Assign a named vector for the multilevel factors as described in the introduction: `Age`, `Education`, and `Income`.
 
@@ -132,7 +136,7 @@ diabetes <-
   mutate(across(where(is.factor), fct_rev)) #so modeling correctly reflects positive class
 ```
 
-Create ordered factors for multilevel variables: `Age`, `Education`, and `Income`.
+Create ordered factors for the multilevel variables: `Age`, `Education`, and `Income`.
 
 ```{r}
 diabetes <-
@@ -181,6 +185,22 @@ diabetes |>
   describe()
 ```
 
+The median values of zero, skew of \>2, and low mean values confirm the Mental Health and Physical Health variables to deviate from normality. General Health appears to be approximately normal. BMI appears to be right skewed, but the max value of 98 would be severely obese and highly unusual.
+
+Check count of BMI values indicating extreme obesity.
+
+```{r}
+diabetes |>
+  select(BMI) |>
+  filter(BMI > 50) |>
+  mutate(BMI_cut = cut(BMI, breaks = c(50, 60, 70, 80, 90, 100))) |>
+  group_by(BMI_cut) |>
+  summarise(count = n()) |>
+  mutate(percent = count / length(diabetes$BMI) * 100)
+```
+
+The number of observations with BMI above 50 is surprising (and those above 80 especially so). That said, as they cumulatively represent less than 1% of total observations and we have no strong rationale for removing, we will leave these outliers in the data set.
+
 Check unique values for the categorical variables.
 
 ```{r}
@@ -196,7 +216,7 @@ saveRDS(diabetes, "data/diabetes.rds")
 save(diabetes, file = "data/diabetes.RData")
 ```
 
-In Exploratory Data Analysis and Modeling, the following variables are excluded from consideration based upon early stage modeling which revealed them to have lower variable importance in many decision tree models: `CholCheck`, `Smoker`, `Stroke`, `PhysActivity`, `Fruits`, `Veggies`, `HvyAlcoholConsump`, `AnyHealthcare`, `NoDocbcCost`, `DiffWalk`, and `Education`. To retain the integrity of the full data set, these variables are not removed in the saved data set. Instead, `step_rm` is used during recipe definition in the Modeling phase to exclude these variables.
+As we move to Exploratory Data Analysis and Modeling, the following variables are excluded from consideration based upon early stage modeling which revealed them to have lower variable importance in many decision tree models: `CholCheck`, `Smoker`, `Stroke`, `PhysActivity`, `Fruits`, `Veggies`, `HvyAlcoholConsump`, `AnyHealthcare`, `NoDocbcCost`, `DiffWalk`, and `Education`. To retain the integrity of the full data set, these variables are not removed in the saved data set. Instead, `step_rm` is used during recipe definition in the Modeling phase to exclude these variables.
 
 ## EDA
 
@@ -231,9 +251,9 @@ diabetes |>
   adorn_title()
 ```
 
-The relative occurrence of diabetes diagnosis does not appear to differ drastically based on sex.
+The relative occurrence of diabetes diagnosis does not appear to differ drastically based on sex. By itself, the `Sex` variable is unlikely to be a strong predictor of `Diabetes`.
 
-Explore the percentage of diabetes diagnoses relative to whether or not the respondent had ever been diagnosed with high blood pressure
+Explore the percentage of diabetes diagnoses relative to whether or not the respondent had ever been diagnosed with high blood pressure.
 
 ```{r}
 diabetes |>
@@ -243,6 +263,8 @@ diabetes |>
   adorn_title()
 ```
 
+Given the percentage "Yes" for high blood pressure is quite a bit higher than the 14% found in the one-way contingency table on `Diabetes` reported earlier, this variable may help us predict a positive diagnosis.
+
 ```{r}
 diabetes |>
   tabyl(HighChol, Diabetes) |>
@@ -250,6 +272,8 @@ diabetes |>
   adorn_pct_formatting() |>
   adorn_title()
 ```
+
+Similarly, the percentage "Yes" for high cholesterol is quite a bit higher than the 14% for the one-way contingency table on `Diabetes` reported earlier. This variable also may help us predict a positive diagnosis.
 
 Check how correlated the numeric variables are with one another.
 
@@ -273,6 +297,8 @@ diabetes |>
   kable()
 ```
 
+Without running any tests of statistical significance, we can tentatively observe that the mean for the general health rating (`GenHlth`) and number of days of poor physical health (`PhysHlth`) looks to be higher for those with a positive diabetes diagnosis.
+
 ```{r}
 diabetes |>
   ggplot(aes(Diabetes, BMI)) +
@@ -289,6 +315,17 @@ diabetes |>
   scale_fill_manual(values = c("Yes"="#F51304","No"="#2D8AEB"))
 ```
 
+A diabetes diagnosis (`Diabetes`) of "No" appears to be more tightly distributed around a lower mean. A quick t-test below confirms this to a statistically significant difference. High `BMI` may help us predict a positive diagnosis.
+
+```{r}
+BMI_Yes <- diabetes |> filter(Diabetes == "Yes") |> pull(BMI)
+BMI_No <- diabetes |> filter(Diabetes == "No") |> pull(BMI)
+
+t.test(BMI_Yes, BMI_No, var.equal = T)
+```
+
+Compare the density plot of days of poor physical health (`PhysHlth`) for positive versus negative diabetes diagnosis.
+
 ```{r}
 diabetes |>
   ggplot(aes(PhysHlth)) +
@@ -298,6 +335,17 @@ diabetes |>
   ggtitle("Distribution of Diabetes Diagnosis by Physical Health") +
   facet_wrap(~ Diabetes)
 ```
+
+The "No" class for `Diabetes` is highly peaked a 0, while the "Yes" class looks to be a bit more uniformly distributed. The `PhysHlth` variable seems like a good candidate to include in our prediction model.
+
+```{r}
+Phys_Yes <- diabetes |> filter(Diabetes == "Yes") |> pull(PhysHlth)
+Phys_No <- diabetes |> filter(Diabetes == "No") |> pull(PhysHlth)
+
+t.test(Phys_Yes, Phys_No, var.equal = F)
+```
+
+Compare the density plot of days of poor mental health (`MentHlth`) for positive versus negative diabetes diagnosis.
 
 ```{r}
 diabetes |>
@@ -309,14 +357,22 @@ diabetes |>
   facet_wrap(~ Diabetes)
 ```
 
+The visual distinction between classes of `Diabetes` is less pronounced for days of poor mental health (`MentHlth`) than for physical health. That said, perhaps in conjunction with other variables, `MentHlth` can be useful is our prediction model.
+
+Consider a histogram of general health ratings (`GenHlth`) highlighting counts of the "Yes" class of `Diabetes` compared to the "No" class.
+
 ```{r}
 diabetes |>
   ggplot(aes(GenHlth)) +
-  geom_histogram(bins = 5, aes(fill = Diabetes)) +
+  geom_histogram(bins = 5, aes(fill = Diabetes), position="identity", alpha=0.5) +
   xlab("General Health") +
   ggtitle("Distribution of Diabetes Diagnosis by General Health") +
   scale_fill_manual(values = c("Yes"="#F51304","No"="#2D8AEB"))
 ```
+
+Individuals with a positive diagnosis appear more likely to have self-assessed their general health toward the "poor" end of the spectrum (i.e., toward "5"). The `GenHlth` variable should be useful in our modeling exercise.
+
+Prepare a mosaic plot to investigate how the prevalence of a positive diabetes diagnosis might differ by age group categories.
 
 ```{r}
 diabetes |>
@@ -330,6 +386,10 @@ diabetes |>
   scale_fill_manual(values = c("Yes"="#F51304","No"="#2D8AEB"))
 ```
 
+There seems to be an association between the "Yes" class of `Diabetes` and higher age groups (`Age`). The proportion of "Yes" is greatest for "70 to 74", although generally it seems to climb with age and roughly flatten out after 65.
+
+Prepare a mosaic plot to investigate how the prevalence of a positive diabetes diagnosis might differ by household income group categories.
+
 ```{r}
 diabetes |>
   ggplot() +
@@ -342,8 +402,12 @@ diabetes |>
   scale_fill_manual(values = c("Yes"="#F51304","No"="#2D8AEB"))
 ```
 
+The "Yes" class of `Diabetes` seems to be more common among lower income groups (`Income`).
+
 ## Modeling
 
-For Modeling results, go here: [Modeling](Modeling.html)
+Next we carry these findings into an effort to build a model which could help us predict a positive diabetes diagnosis.
+
+For results of the modeling exercise, go here: [Modeling](Modeling.html)
 
 *The story continues...*

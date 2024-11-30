@@ -1,18 +1,14 @@
-library(readr)
-library(dplyr)
-library(tibble)
+library(tidyverse)
 library(ranger)
-library(workflows)
-library(parsnip)
-library(yardstick)
+library(tidymodels)
 library(plumber)
 
 options(scipen = 999, digits = 2)
 
 diabetes <- readRDS("data/diabetes.rds")
 
-load("model/diabetes_rf_final_model.RData")
-load("model/diabetes_rf_final_fit.RData")
+base::load("model/diabetes_rf_final_model.RData")
+base::load("model/diabetes_rf_final_fit.RData")
 
 data(diabetes)
 
@@ -56,7 +52,7 @@ pred_defaults
 #* - `/pred?highbp=Yes&highchol=Yes&bmi=80&heartdiseaseorattack=Yes&genhlth=2&menthlth=2&physhlth=2&sex=Male&age=70%20to%2074&income=%2410%2C000%20to%20less%20than%20%2415%2C000`
 #* - `/pred?highbp=No&highchol=No&bmi=25&heartdiseaseorattack=No&genhlth=1&menthlth=2&physhlth=2&sex=Female&age=25%20to%2029&income=%2450%2C000%20to%20less%20than%20%2475%2C000`
 #* - `/pred?highbp=Yes&highchol=Yes&bmi=90&heartdiseaseorattack=Yes&genhlth=5&menthlth=30&physhlth=30&sex=Male&age=70%20to%2074&income=%2410%2C000%20to%20less%20than%20%2415%2C000`
-#* - `/pred` (uses all default values)
+#* - `/pred` (call with all default values)
 #* 
 #* @param highbp Yes or No
 #* @param highchol Yes or No

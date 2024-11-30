@@ -13,6 +13,7 @@ execute:
 ```{r}
 library(conflicted)
 library(tidyverse)
+library(ranger)
 library(tidymodels)
 library(baguette)
 library(vip)
