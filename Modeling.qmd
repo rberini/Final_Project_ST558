@@ -8,17 +8,27 @@ execute:
   message: false
 ---
 
+## Introduction and overview
+
+In this phase, we turn our attention to the process of fitting and selecting a best model to predict a diabetes diagnosis using the subset of variables described during our Exploratory Data Analysis (EDA) phase.
+
+As outlined in the corresponding [EDA report](https://rberini.github.io/Final_Project_ST558/EDA.html "EDA"), this project considers the Diabetes Health Indicators data set. The data is drawn from a 2015 Behavioral Risk Factor Surveillance System (BRFSS) survey conducted by the Centers for Disease Control and Prevention (CDC).
+
+There are 253,680 observations in the data set and 21 potential predictors.
+
+This investigation and analysis considers whether answers to the BRFSS survey questions might prove useful in predicting a diabetes diagnosis, and, if so, which subset of potential predictors should be considered in modeling. The goal for this **modeling** phase is to create models for predicting the `Diabetes` variable. We use the `tidymodels` package to consider two models: a **classification tree** and a **random forest**. We will use **log loss** as our metric to evaluate the models. For both model types, we use log loss with 5 fold cross-validation to select the best model from that family of models. We then compare the best model from each family to select one best final model to be published via API.
+
 ## Load required packages
 
 ```{r}
 library(conflicted)
 library(tidyverse)
-library(ranger)
+library(ranger) #not directly called; used by tidymodels package
 library(tidymodels)
-library(baguette)
+library(baguette) #not used; loading in case we later might consider a bagged tree
 library(vip)
-library(future)
-library(furrr)
+library(future) #attempting to improve tuning time through parallelization
+library(furrr) #not directly called; used by future package
 
 conflicts_prefer(dplyr::lag)
 conflicts_prefer(dplyr::filter)
@@ -29,6 +39,8 @@ options(scipen = 999, digits = 2)
 
 ## Read data
 
+Load manipulated data set coming out of EDA phase.
+
 ```{r}
 diabetes <- readRDS("data/diabetes.rds")
 diabetes
@@ -36,7 +48,7 @@ diabetes
 
 ## Split the data
 
-Split the data into a training and test set (70/30 split). Use the `strata` argument to stratify the split on the `diabetes` outcome.
+Split the data into training and test sets (70/30 split). Use the `strata` argument to stratify the split on the `diabetes` outcome given the low proportion of positive cases in the data set.
 
 ```{r}
 set.seed(558)
@@ -45,7 +57,7 @@ diabetes_train <- training(diabetes_split)
 diabetes_test <- testing(diabetes_split)
 ```
 
-On the training set, create a 5 fold CV split.
+For the training set, create a five fold cross-validation (CV) split. Again, we use the `strata` argument to stratify the folds on the `diabetes` outcome to appropriately reflect the training-test split. The five fold cross-validation method randomly splits the data set into five equal parts. Four of the splits are used to train the model and the fifth, a holdout or validation set, is used to evaluate performance based on the chosen metric (log loss in this case). Which specific fold is used for the validation set rotates among the five folds at each run. This method can be used to assess performance of the model as applied to data not used to train that model (i.e., the validation fold). In addition, when used with the tuning grid, this method can be used to estimate the best parameters.
 
 ```{r}
 set.seed(558)
@@ -54,7 +66,7 @@ diabetes_5_fold <- vfold_cv(diabetes_train, v = 5, strata = Diabetes)
 
 ## Create recipe
 
-placeholder text
+Construct a **recipe** that defines the preprocessing steps for the models to follow. The recipe specifies the response variable (`Diabetes`) and which predictors to keep and remove (as outlined in the EDA phase). We opt not to normalize numeric predictors because decision trees are invariant to scaling.
 
 ```{r}
 diabetes_rec <-
@@ -63,19 +75,25 @@ diabetes_rec <-
   #step_normalize(all_numeric_predictors()) this step removed as not needed for trees
 ```
 
+After creating the recipe, inspect the transformed training data.
+
 ```{r}
 diabetes_rec |>
   prep(training = diabetes_train) |>
   bake(diabetes_train)
 ```
 
-Define event level and metrics set.
+Define the metrics set. Our primary metric for training and evaluation is **log loss**; however, we may wish to consider other measures of performance. So here we also consider accuracy, specificity (i.e., true positive rate), sensitivity (i.e., true negative rate), and receiver operating characteristic area under the curve (representing how well the model can distinguish between positive and negative cases).
 
 ```{r}
 metrics_set <- metric_set(mn_log_loss, roc_auc, accuracy, spec, sens)
 ```
 
-Set up Classification Tree fit to use the `“rpart”` engine.
+## Fit Classification Tree model
+
+First, we consider the Classification Tree family of models. **Classification Trees** are type of decision tree that start with a root node. Observations are then split at subsequent decision nodes using proportional weights to classify observations by predictor variables at each node. This eventually leads to leaf nodes composed of similar observations, which represent outcomes. Classification trees are employed for categorical response variables. They offer clear, visual representations of decisions, making it easy to understand and explain the classification process.
+
+Set up the Classification Tree fit to use the `“rpart”` engine.
 
 ```{r}
 tree_mod <- decision_tree(tree_depth = 8,
@@ -85,7 +103,7 @@ tree_mod <- decision_tree(tree_depth = 8,
   set_mode("classification")
 ```
 
-Create workflow using recipe and model.
+Create a workflow using the recipe and model defined earlier.
 
 ```{r}
 diabetes_tree_wfl <- 
@@ -109,7 +127,7 @@ tree_fits <-
 plan(sequential)
 ```
 
-Sort models by tuned cost complexity parameters with lowest Log Loss.
+Sort models by the tuned cost complexity parameter associated with lowest **log loss**.
 
 ```{r}
 tree_fits |>
@@ -118,7 +136,7 @@ tree_fits |>
   arrange(mean)
 ```
 
-Identify parameter combination with lowest Log Loss.
+Identify the parameter specification with lowest **log loss** to inform the best model.
 
 ```{r}
 tree_best_params <-
@@ -127,7 +145,7 @@ tree_best_params <-
 tree_best_params
 ```
 
-Using the best model, fit the model to the entire training data set using the `last_fit()` function. Compute metrics on the test set.
+Using the best model, fit the model to the entire training data set using the `last_fit()` function. Compute the **log loss** and other performance metrics on the test set.
 
 ```{r}
 diabetes_tree_final_fit <-
@@ -176,7 +194,9 @@ tree_metrics <-
 tree_metrics
 ```
 
-## Fit Random Forest Model
+## Fit Random Forest model
+
+**Random Forest** is an ensemble method that combines many decision trees using both bootstrapping and feature randomness. Bootstrapping involves creating multiple trees by randomly sampling the training data set with replacement. Feature randomness involves selecting a random subset of predictors at each split. Compared to a single tree or bagged tree, feature randomness helps mitigate the influence of a strong predictor or strong predictors that might otherwise create highly correlated trees. In classification, a majority vote from all trees determines the final prediction.
 
 Set up Random Forest fit to use the `“ranger”` engine.
 
@@ -188,7 +208,7 @@ rf_mod <- rand_forest(mtry = tune(),
   set_mode("classification")
 ```
 
-Create workflow using recipe and model.
+Create a workflow using the recipe and model defined earlier.
 
 ```{r}
 diabetes_rf_wfl <- 
@@ -197,7 +217,7 @@ diabetes_rf_wfl <-
   add_model(rf_mod)
 ```
 
-Create a tuning grid to consider varying levels of number of predictors that will be randomly sampled at each split and number of trees contained in the ensemble.
+Create a tuning grid to consider varying levels of the number of predictors (`mtry`) that will be randomly sampled at each node split.
 
 ```{r}
 plan(multisession, workers = 4)
@@ -212,7 +232,7 @@ rf_fits <-
 plan(sequential)
 ```
 
-Sort models by tuned `mtry` parameter with lowest Log Loss.
+Sort models by tuned `mtry` parameter with lowest **log loss**.
 
 ```{r}
 rf_fits |>
@@ -221,7 +241,7 @@ rf_fits |>
   arrange(mean)
 ```
 
-Identify parameter combination with lowest Log Loss.
+Identify the parameter specification with lowest **log loss** to inform the best model.
 
 ```{r}
 
@@ -231,7 +251,7 @@ rf_best_params <-
 rf_best_params
 ```
 
-Using the best model, fit the model to the entire training data set using the `last_fit()` function. Compute the Log Loss and Accuracy metrics on the test set.
+Using the best model, fit the model to the entire training data set using the `last_fit()` function. Compute the **log loss** and other performance metrics on the test set.
 
 ```{r}
 
@@ -274,9 +294,9 @@ rf_metrics <-
 rf_metrics
 ```
 
-## Select the Best Model
+## Select the best model
 
-Compare all final models using both Log Loss and ROC AUC.
+Compare all final models using both **log loss** and **ROC AUC**.
 
 ```{r}
 
@@ -296,7 +316,7 @@ rbind(tree_metrics, rf_metrics) |>
 
 The Random Forest model performs slightly better on both metrics so that will serve as our final model.
 
-Save best model.
+Save the best model for use in the API.
 
 ```{r}
 save(diabetes_rf_final_model, file = "model/diabetes_rf_final_model.RData")

@@ -140,26 +140,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<section id="introduction-and-overview" class="level2">
+<h2 class="anchored" data-anchor-id="introduction-and-overview">Introduction and overview</h2>
+<p>In this phase, we turn our attention to the process of fitting and selecting a best model to predict a diabetes diagnosis using the subset of variables described during our Exploratory Data Analysis (EDA) phase.</p>
+<p>As outlined in the corresponding <a href="https://rberini.github.io/Final_Project_ST558/EDA.html" title="EDA">EDA report</a>, this project considers the Diabetes Health Indicators data set. The data is drawn from a 2015 Behavioral Risk Factor Surveillance System (BRFSS) survey conducted by the Centers for Disease Control and Prevention (CDC).</p>
+<p>There are 253,680 observations in the data set and 21 potential predictors.</p>
+<p>This investigation and analysis considers whether answers to the BRFSS survey questions might prove useful in predicting a diabetes diagnosis, and, if so, which subset of potential predictors should be considered in modeling. The goal for this <strong>modeling</strong> phase is to create models for predicting the <code>Diabetes</code> variable. We use the <code>tidymodels</code> package to consider two models: a <strong>classification tree</strong> and a <strong>random forest</strong>. We will use <strong>log loss</strong> as our metric to evaluate the models. For both model types, we use log loss with 5 fold cross-validation to select the best model from that family of models. We then compare the best model from each family to select one best final model to be published via API.</p>
+</section>
 <section id="load-required-packages" class="level2">
 <h2 class="anchored" data-anchor-id="load-required-packages">Load required packages</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(conflicted)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(baguette)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(vip)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(future)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(furrr)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">conflicts_prefer</span>(dplyr<span class="sc">::</span>lag)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">conflicts_prefer</span>(dplyr<span class="sc">::</span>filter)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">tidymodels_prefer</span>()</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>, <span class="at">digits =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ranger) <span class="co">#not directly called; used by tidymodels package</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(baguette) <span class="co">#not used; loading in case we later might consider a bagged tree</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(vip)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(future) <span class="co">#attempting to improve tuning time through parallelization</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(furrr) <span class="co">#not directly called; used by future package</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">conflicts_prefer</span>(dplyr<span class="sc">::</span>lag)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">conflicts_prefer</span>(dplyr<span class="sc">::</span>filter)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">tidymodels_prefer</span>()</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>, <span class="at">digits =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="read-data" class="level2">
 <h2 class="anchored" data-anchor-id="read-data">Read data</h2>
+<p>Load manipulated data set coming out of EDA phase.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>diabetes <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/diabetes.rds"</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>diabetes</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -187,14 +196,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="split-the-data" class="level2">
 <h2 class="anchored" data-anchor-id="split-the-data">Split the data</h2>
-<p>Split the data into a training and test set (70/30 split). Use the <code>strata</code> argument to stratify the split on the <code>diabetes</code> outcome.</p>
+<p>Split the data into training and test sets (70/30 split). Use the <code>strata</code> argument to stratify the split on the <code>diabetes</code> outcome given the low proportion of positive cases in the data set.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">558</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>diabetes_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(diabetes, <span class="at">prop =</span> <span class="fl">0.7</span>, <span class="at">strata =</span> Diabetes)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>diabetes_train <span class="ot">&lt;-</span> <span class="fu">training</span>(diabetes_split)</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>diabetes_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(diabetes_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>On the training set, create a 5 fold CV split.</p>
+<p>For the training set, create a five fold cross-validation (CV) split. Again, we use the <code>strata</code> argument to stratify the folds on the <code>diabetes</code> outcome to appropriately reflect the training-test split. The five fold cross-validation method randomly splits the data set into five equal parts. Four of the splits are used to train the model and the fifth, a holdout or validation set, is used to evaluate performance based on the chosen metric (log loss in this case). Which specific fold is used for the validation set rotates among the five folds at each run. This method can be used to assess performance of the model as applied to data not used to train that model (i.e., the validation fold). In addition, when used with the tuning grid, this method can be used to estimate the best parameters.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">558</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>diabetes_5_fold <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(diabetes_train, <span class="at">v =</span> <span class="dv">5</span>, <span class="at">strata =</span> Diabetes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -202,13 +211,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="create-recipe" class="level2">
 <h2 class="anchored" data-anchor-id="create-recipe">Create recipe</h2>
-<p>placeholder text</p>
+<p>Construct a <strong>recipe</strong> that defines the preprocessing steps for the models to follow. The recipe specifies the response variable (<code>Diabetes</code>) and which predictors to keep and remove (as outlined in the EDA phase). We opt not to normalize numeric predictors because decision trees are invariant to scaling.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>diabetes_rec <span class="ot">&lt;-</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recipe</span>(Diabetes <span class="sc">~</span> ., <span class="at">data =</span> diabetes_train) <span class="sc">|&gt;</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_rm</span>(CholCheck, Smoker, Stroke, PhysActivity<span class="sc">:</span>NoDocbcCost, DiffWalk, Education) <span class="co">#|&gt;</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">#step_normalize(all_numeric_predictors()) this step removed as not needed for trees</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>After creating the recipe, inspect the transformed training data.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>diabetes_rec <span class="sc">|&gt;</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prep</span>(<span class="at">training =</span> diabetes_train) <span class="sc">|&gt;</span></span>
@@ -231,11 +241,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 # ℹ 3 more variables: Age &lt;ord&gt;, Income &lt;ord&gt;, Diabetes &lt;fct&gt;</code></pre>
 </div>
 </div>
-<p>Define event level and metrics set.</p>
+<p>Define the metrics set. Our primary metric for training and evaluation is <strong>log loss</strong>; however, we may wish to consider other measures of performance. So here we also consider accuracy, specificity (i.e., true positive rate), sensitivity (i.e., true negative rate), and receiver operating characteristic area under the curve (representing how well the model can distinguish between positive and negative cases).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>metrics_set <span class="ot">&lt;-</span> <span class="fu">metric_set</span>(mn_log_loss, roc_auc, accuracy, spec, sens)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Set up Classification Tree fit to use the <code>“rpart”</code> engine.</p>
+</section>
+<section id="fit-classification-tree-model" class="level2">
+<h2 class="anchored" data-anchor-id="fit-classification-tree-model">Fit Classification Tree model</h2>
+<p>First, we consider the Classification Tree family of models. <strong>Classification Trees</strong> are type of decision tree that start with a root node. Observations are then split at subsequent decision nodes using proportional weights to classify observations by predictor variables at each node. This eventually leads to leaf nodes composed of similar observations, which represent outcomes. Classification trees are employed for categorical response variables. They offer clear, visual representations of decisions, making it easy to understand and explain the classification process.</p>
+<p>Set up the Classification Tree fit to use the <code>“rpart”</code> engine.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>tree_mod <span class="ot">&lt;-</span> <span class="fu">decision_tree</span>(<span class="at">tree_depth =</span> <span class="dv">8</span>,</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                          <span class="at">min_n =</span> <span class="dv">25</span>,</span>
@@ -243,7 +257,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"rpart"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Create workflow using recipe and model.</p>
+<p>Create a workflow using the recipe and model defined earlier.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>diabetes_tree_wfl <span class="ot">&lt;-</span> </span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>() <span class="sc">|&gt;</span></span>
@@ -263,7 +277,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(sequential)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Sort models by tuned cost complexity parameters with lowest Log Loss.</p>
+<p>Sort models by the tuned cost complexity parameter associated with lowest <strong>log loss</strong>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>tree_fits <span class="sc">|&gt;</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">|&gt;</span></span>
@@ -295,7 +309,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 20        2.84e- 2 mn_log_loss binary     0.404     5 0.00000973 Preprocessor1_…</code></pre>
 </div>
 </div>
-<p>Identify parameter combination with lowest Log Loss.</p>
+<p>Identify the parameter specification with lowest <strong>log loss</strong> to inform the best model.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>tree_best_params <span class="ot">&lt;-</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  tree_fits <span class="sc">|&gt;</span></span>
@@ -308,7 +322,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 1     0.000000295 Preprocessor1_Model03</code></pre>
 </div>
 </div>
-<p>Using the best model, fit the model to the entire training data set using the <code>last_fit()</code> function. Compute metrics on the test set.</p>
+<p>Using the best model, fit the model to the entire training data set using the <code>last_fit()</code> function. Compute the <strong>log loss</strong> and other performance metrics on the test set.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>diabetes_tree_final_fit <span class="ot">&lt;-</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  diabetes_tree_wfl <span class="sc">|&gt;</span></span>
@@ -389,7 +403,8 @@ Prediction   Yes    No
 </div>
 </section>
 <section id="fit-random-forest-model" class="level2">
-<h2 class="anchored" data-anchor-id="fit-random-forest-model">Fit Random Forest Model</h2>
+<h2 class="anchored" data-anchor-id="fit-random-forest-model">Fit Random Forest model</h2>
+<p><strong>Random Forest</strong> is an ensemble method that combines many decision trees using both bootstrapping and feature randomness. Bootstrapping involves creating multiple trees by randomly sampling the training data set with replacement. Feature randomness involves selecting a random subset of predictors at each split. Compared to a single tree or bagged tree, feature randomness helps mitigate the influence of a strong predictor or strong predictors that might otherwise create highly correlated trees. In classification, a majority vote from all trees determines the final prediction.</p>
 <p>Set up Random Forest fit to use the <code>“ranger”</code> engine.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>rf_mod <span class="ot">&lt;-</span> <span class="fu">rand_forest</span>(<span class="at">mtry =</span> <span class="fu">tune</span>(),</span>
@@ -398,14 +413,14 @@ Prediction   Yes    No
 <span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"ranger"</span>, <span class="at">importance =</span> <span class="st">"impurity"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Create workflow using recipe and model.</p>
+<p>Create a workflow using the recipe and model defined earlier.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>diabetes_rf_wfl <span class="ot">&lt;-</span> </span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>() <span class="sc">|&gt;</span></span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(diabetes_rec) <span class="sc">|&gt;</span></span>
 <span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(rf_mod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Create a tuning grid to consider varying levels of number of predictors that will be randomly sampled at each split and number of trees contained in the ensemble.</p>
+<p>Create a tuning grid to consider varying levels of the number of predictors (<code>mtry</code>) that will be randomly sampled at each node split.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession, <span class="at">workers =</span> <span class="dv">4</span>)</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -418,7 +433,7 @@ Prediction   Yes    No
 <span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(sequential)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Sort models by tuned <code>mtry</code> parameter with lowest Log Loss.</p>
+<p>Sort models by tuned <code>mtry</code> parameter with lowest <strong>log loss</strong>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>rf_fits <span class="sc">|&gt;</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">|&gt;</span></span>
@@ -435,7 +450,7 @@ Prediction   Yes    No
 5     9 mn_log_loss binary     0.346     5 0.00206  Preprocessor1_Model4</code></pre>
 </div>
 </div>
-<p>Identify parameter combination with lowest Log Loss.</p>
+<p>Identify the parameter specification with lowest <strong>log loss</strong> to inform the best model.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>rf_best_params <span class="ot">&lt;-</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  rf_fits <span class="sc">|&gt;</span></span>
@@ -448,7 +463,7 @@ Prediction   Yes    No
 1     2 Preprocessor1_Model2</code></pre>
 </div>
 </div>
-<p>Using the best model, fit the model to the entire training data set using the <code>last_fit()</code> function. Compute the Log Loss and Accuracy metrics on the test set.</p>
+<p>Using the best model, fit the model to the entire training data set using the <code>last_fit()</code> function. Compute the <strong>log loss</strong> and other performance metrics on the test set.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>diabetes_rf_final_fit <span class="ot">&lt;-</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  diabetes_rf_wfl <span class="sc">|&gt;</span></span>
@@ -515,8 +530,8 @@ Prediction   Yes    No
 </div>
 </section>
 <section id="select-the-best-model" class="level2">
-<h2 class="anchored" data-anchor-id="select-the-best-model">Select the Best Model</h2>
-<p>Compare all final models using both Log Loss and ROC AUC.</p>
+<h2 class="anchored" data-anchor-id="select-the-best-model">Select the best model</h2>
+<p>Compare all final models using both <strong>log loss</strong> and <strong>ROC AUC</strong>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(tree_metrics, rf_metrics) <span class="sc">|&gt;</span></span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"mn_log_loss"</span>) <span class="sc">|&gt;</span></span>
@@ -544,7 +559,7 @@ Prediction   Yes    No
 </div>
 </div>
 <p>The Random Forest model performs slightly better on both metrics so that will serve as our final model.</p>
-<p>Save best model.</p>
+<p>Save the best model for use in the API.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(diabetes_rf_final_model, <span class="at">file =</span> <span class="st">"model/diabetes_rf_final_model.RData"</span>)</span>
 <span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(diabetes_rf_final_fit, <span class="at">file =</span> <span class="st">"model/diabetes_rf_final_fit.RData"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>

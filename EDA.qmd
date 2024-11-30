@@ -306,7 +306,7 @@ diabetes |>
   stat_summary(fun = "mean",
                geom = "crossbar", 
                width = 0.5,
-               size = 0.2,
+               linewidth = 0.2,
                colour = "white") +
   theme(legend.position = "none") +
   xlab("Diabetes") +
