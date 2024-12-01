@@ -211,7 +211,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="create-recipe" class="level2">
 <h2 class="anchored" data-anchor-id="create-recipe">Create recipe</h2>
-<p>Construct a <strong>recipe</strong> that defines the preprocessing steps for the models to follow. The recipe specifies the response variable (<code>Diabetes</code>) and which predictors to keep and remove (as outlined in the EDA phase). We opt not to normalize numeric predictors because decision trees are invariant to scaling.</p>
+<p>Construct a <strong>recipe</strong> that defines the preprocessing steps for the models to follow. The recipe specifies the response variable (<code>Diabetes</code>) and which predictors to keep and remove (as outlined in the EDA phase). We opt not to normalize numeric predictors because decision trees are not affected by feature scaling.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>diabetes_rec <span class="ot">&lt;-</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recipe</span>(Diabetes <span class="sc">~</span> ., <span class="at">data =</span> diabetes_train) <span class="sc">|&gt;</span></span>
@@ -248,7 +248,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="fit-classification-tree-model" class="level2">
 <h2 class="anchored" data-anchor-id="fit-classification-tree-model">Fit Classification Tree model</h2>
-<p>First, we consider the Classification Tree family of models. <strong>Classification Trees</strong> are type of decision tree that start with a root node. Observations are then split at subsequent decision nodes using proportional weights to classify observations by predictor variables at each node. This eventually leads to leaf nodes composed of similar observations, which represent outcomes. Classification trees are employed for categorical response variables. They offer clear, visual representations of decisions, making it easy to understand and explain the classification process.</p>
+<p>First, consider the Classification Tree family of models. <strong>Classification Trees</strong> are a type of decision tree that segments data into distinct categories using a hierarchical structure. Beginning with a root node, these trees recursively divide observations based on predictor variables, creating increasingly focused subgroups. At each decision node, the algorithm selects the most informative split that best separates observations into more homogeneous groups. The process continues until reaching leaf nodes, which represent final classification outcomes for similar observations.Classification trees, as opposed to Regression Trees, are employed for categorical response variables. They offer clear, visual representations of decisions, making it easy to understand and explain the classification process.</p>
 <p>Set up the Classification Tree fit to use the <code>“rpart”</code> engine.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>tree_mod <span class="ot">&lt;-</span> <span class="fu">decision_tree</span>(<span class="at">tree_depth =</span> <span class="dv">8</span>,</span>
@@ -404,7 +404,7 @@ Prediction   Yes    No
 </section>
 <section id="fit-random-forest-model" class="level2">
 <h2 class="anchored" data-anchor-id="fit-random-forest-model">Fit Random Forest model</h2>
-<p><strong>Random Forest</strong> is an ensemble method that combines many decision trees using both bootstrapping and feature randomness. Bootstrapping involves creating multiple trees by randomly sampling the training data set with replacement. Feature randomness involves selecting a random subset of predictors at each split. Compared to a single tree or bagged tree, feature randomness helps mitigate the influence of a strong predictor or strong predictors that might otherwise create highly correlated trees. In classification, a majority vote from all trees determines the final prediction.</p>
+<p><strong>Random Forest</strong> is an ensemble method that combines many decision trees using both bootstrapping and feature randomness. Bootstrapping involves creating multiple trees by randomly sampling from the training data set with replacement. Feature randomness involves selecting a random subset of predictors at each split. Compared to a single tree or bagged tree, feature randomness helps mitigate the influence of a strong predictor, or strong predictors, that might otherwise create highly correlated trees. In classification, a majority vote from all trees determines the final prediction.</p>
 <p>Set up Random Forest fit to use the <code>“ranger”</code> engine.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>rf_mod <span class="ot">&lt;-</span> <span class="fu">rand_forest</span>(<span class="at">mtry =</span> <span class="fu">tune</span>(),</span>
@@ -420,7 +420,7 @@ Prediction   Yes    No
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(diabetes_rec) <span class="sc">|&gt;</span></span>
 <span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(rf_mod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Create a tuning grid to consider varying levels of the number of predictors (<code>mtry</code>) that will be randomly sampled at each node split.</p>
+<p>Create a tuning grid to consider varying levels of the number of predictors that will be randomly sampled at each node split (<code>mtry</code>) .</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession, <span class="at">workers =</span> <span class="dv">4</span>)</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>

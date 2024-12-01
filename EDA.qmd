@@ -32,7 +32,7 @@ Variables in the data set include:
 
 **HighChol**: whether or not the individual had ever been diagnosed with high cholesterol ("Yes" or "No")
 
-**CholCheck**: whether or not the individual had cholesterol levels checked within the past five years ("Yes" or "No")
+**CholCheck**: whether or not the individual has had cholesterol levels checked within the past five years ("Yes" or "No")
 
 **BMI**: body mass index of the individual (numeric value)
 
@@ -58,17 +58,28 @@ Variables in the data set include:
 
 **MentHlth**: days of poor mental health over the prior 30 days (numeric value)
 
-**PhysHlth**: days of physical illness or injury over the prior 30 days (numeric value)
+**PhysHlth**: days of poor physical illness or injury over the prior 30 days (numeric value)
 
 **DiffWalk**: whether or not the individual faced serious difficulty walking or climbing stairs ("Yes" or "No")
 
-**Sex**: indicated sex of respondent ("Female" or "Male"
+**Sex**: indicated sex of respondent ("Female" or "Male")
 
 **Age**: indicated age group of respondent ("18 to 24", "25 to 29", "30 to 34", "35 to 39", "40 to 44", "45 to 49", "50 to 54", "55 to 59", "60 to 64", "65 to 69", "70 to 74", "75 to 79", "80 or older")
 
 **Education**: indicated highest grade or year of school completed ("No school or only kindergarten", "Elementary", "Some high school", "High school graduate", "Some college or technical school", "College graduate")
 
 **Income**: indicated household income group ("Less than \$10,000", "\$10,000 to less than \$15,000", "\$15,000 to less than \$20,000", "\$20,000 to less than \$25,000", "\$25,000 to less than \$35,000", "\$35,000 to less than \$50,000", "\$50,000 to less than \$75,000", "\$75,000 or more")
+
+### About Exploratory Data Analysis (EDA)
+
+The purpose of EDA is to:
+
+-   understand how the data is stored
+-   perform some basic data validation
+-   determine the rate of missing values
+-   clean up the data as needed
+-   investigate distributions and summary statistics
+-   apply any transformations to improve efficacy of the data set for further analysis and modeling
 
 ## Load required packages
 
@@ -89,7 +100,7 @@ options(scipen = 999, digits = 2)
 
 ## Read data
 
-Read in data from the Kaggle source indicated in introduction.
+Read in data from local drive (originally sourced from [Kaggle](https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset?select=diabetes_binary_5050split_health_indicators_BRFSS2015.csv "Diabetes Health Indicators Dataset")).
 
 ```{r}
 diabetes_raw <- read_csv("data/diabetes_binary_health_indicators_BRFSS2015.csv")
@@ -113,9 +124,9 @@ diabetes_raw |>
   focus(n_missing, complete_rate, numeric.hist)
 ```
 
-There are no missing or values outside the ranges outlined in the variable descriptions in the introduction. The data appears to be clean. The mini-histogram confirms most of the variables to be binary. The Mental Health and Physical Health variables look to be highly skewed. We will investigate this further below.
+There are no missing or values outside the ranges outlined in the variable descriptions in the introduction. The data appears to be clean. The mini-histogram confirms most of the variables to be binary. The Mental Health and Physical Health variables look to be highly skewed. We will investigate this further.
 
-Assign a named vector for the numeric variables as described in the introduction: `BMI`, `MentHlth`, and `PhysHlth`. Consistent with social science research practices, treat `GenHlth` Likert-scale question as interval data (although technically ordinal), and, as such, include among the numeric variables. Assign a named vector for the multilevel factors as described in the introduction: `Age`, `Education`, and `Income`.
+Assign a vector for the numeric variables as described in the introduction: `BMI`, `MentHlth`, and `PhysHlth`. Consistent with social science research practices, we will treat the `GenHlth` Likert-scale question as interval data (although technically ordinal), and, as such, include among the numeric variables. Assign a vector for the multilevel factors as described in the introduction: `Age`, `Education`, and `Income`.
 
 ```{r}
 true_numeric_cols <- c("BMI", "GenHlth", "MentHlth", "PhysHlth")
@@ -185,9 +196,9 @@ diabetes |>
   describe()
 ```
 
-The median values of zero, skew of \>2, and low mean values confirm the Mental Health and Physical Health variables to deviate from normality. General Health appears to be approximately normal. BMI appears to be right skewed, but the max value of 98 would be severely obese and highly unusual.
+The median values of zero, skew of \>2, and low mean values confirm the Mental Health and Physical Health variables to deviate from normality. General Health, however, appears to be approximately normal. BMI appears to be right skewed, but the max value of 98 would indicate extreme, severe obesity. This value is highly unusual and worth further exploration.
 
-Check count of BMI values indicating extreme obesity.
+Check count and percentage of BMI values indicating severe obesity.
 
 ```{r}
 diabetes |>
@@ -209,16 +220,16 @@ diabetes |>
   summary(maxsum = Inf)
 ```
 
-Save manipulated data set for use in modeling phase.
+Save transformed data set for use in modeling phase.
 
 ```{r}
 saveRDS(diabetes, "data/diabetes.rds")
 save(diabetes, file = "data/diabetes.RData")
 ```
 
-As we move to Exploratory Data Analysis and Modeling, the following variables are excluded from consideration based upon early stage modeling which revealed them to have lower variable importance in many decision tree models: `CholCheck`, `Smoker`, `Stroke`, `PhysActivity`, `Fruits`, `Veggies`, `HvyAlcoholConsump`, `AnyHealthcare`, `NoDocbcCost`, `DiffWalk`, and `Education`. To retain the integrity of the full data set, these variables are not removed in the saved data set. Instead, `step_rm` is used during recipe definition in the Modeling phase to exclude these variables.
+As we continue Exploratory Data Analysis and Modeling, the following variables are excluded from consideration based upon early stage modeling which revealed them to have lower variable importance in many decision tree models: `CholCheck`, `Smoker`, `Stroke`, `PhysActivity`, `Fruits`, `Veggies`, `HvyAlcoholConsump`, `AnyHealthcare`, `NoDocbcCost`, `DiffWalk`, and `Education`. To retain the integrity of the full data set, these variables are not removed in the saved data set. Instead, `step_rm` is used during recipe definition in the Modeling phase to exclude these variables.
 
-## EDA
+## Investigate and summarize distributions
 
 Determine frequency of diabetes diagnoses across the data set.
 
@@ -251,7 +262,7 @@ diabetes |>
   adorn_title()
 ```
 
-The relative occurrence of diabetes diagnosis does not appear to differ drastically based on sex. By itself, the `Sex` variable is unlikely to be a strong predictor of `Diabetes`.
+The relative occurrence of diabetes diagnoses does not appear to differ drastically based on sex. By itself, the `Sex` variable is unlikely to be a strong predictor of `Diabetes`, but perhaps useful in combination with other variables.
 
 Explore the percentage of diabetes diagnoses relative to whether or not the respondent had ever been diagnosed with high blood pressure.
 
@@ -273,7 +284,7 @@ diabetes |>
   adorn_title()
 ```
 
-Similarly, the percentage "Yes" for high cholesterol is quite a bit higher than the 14% for the one-way contingency table on `Diabetes` reported earlier. This variable also may help us predict a positive diagnosis.
+Similarly, the percentage "Yes" for high cholesterol is quite a bit higher than the 14% in the one-way contingency table on `Diabetes` reported earlier. This variable also may help us predict a positive diagnosis.
 
 Check how correlated the numeric variables are with one another.
 
@@ -299,6 +310,8 @@ diabetes |>
 
 Without running any tests of statistical significance, we can tentatively observe that the mean for the general health rating (`GenHlth`) and number of days of poor physical health (`PhysHlth`) looks to be higher for those with a positive diabetes diagnosis.
 
+Investigate distribution of diabetes diagnosis by BMI.
+
 ```{r}
 diabetes |>
   ggplot(aes(Diabetes, BMI)) +
@@ -315,7 +328,7 @@ diabetes |>
   scale_fill_manual(values = c("Yes"="#F51304","No"="#2D8AEB"))
 ```
 
-A diabetes diagnosis (`Diabetes`) of "No" appears to be more tightly distributed around a lower mean. A quick t-test below confirms this to a statistically significant difference. High `BMI` may help us predict a positive diagnosis.
+A diabetes diagnosis (`Diabetes`) of "No" appears to be more tightly distributed around a lower mean. A quick t-test confirms this to a statistically significant difference. High `BMI` may help us predict a positive diagnosis.
 
 ```{r}
 BMI_Yes <- diabetes |> filter(Diabetes == "Yes") |> pull(BMI)
@@ -357,7 +370,7 @@ diabetes |>
   facet_wrap(~ Diabetes)
 ```
 
-The visual distinction between classes of `Diabetes` is less pronounced for days of poor mental health (`MentHlth`) than for physical health. That said, perhaps in conjunction with other variables, `MentHlth` can be useful is our prediction model.
+The visual distinction between classes of `Diabetes` is less pronounced for days of poor mental health (`MentHlth`) than for physical health (`PhysHlth`). That said, perhaps in conjunction with other variables, `MentHlth` can be useful is our prediction model.
 
 Consider a histogram of general health ratings (`GenHlth`) highlighting counts of the "Yes" class of `Diabetes` compared to the "No" class.
 
@@ -386,7 +399,7 @@ diabetes |>
   scale_fill_manual(values = c("Yes"="#F51304","No"="#2D8AEB"))
 ```
 
-There seems to be an association between the "Yes" class of `Diabetes` and higher age groups (`Age`). The proportion of "Yes" is greatest for "70 to 74", although generally it seems to climb with age and roughly flatten out after 65.
+There seems to be an association between the "Yes" class of `Diabetes` and higher age groups (`Age`). The proportion of "Yes" is greatest for "70 to 74", although generally it seems to climb with age and roughly plateau after 65.
 
 Prepare a mosaic plot to investigate how the prevalence of a positive diabetes diagnosis might differ by household income group categories.
 
