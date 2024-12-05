@@ -817,24 +817,32 @@ PhysHlth 0.121    0.52    0.354     1.00</code></pre>
 </div>
 </div>
 </div>
-<p>A diabetes diagnosis (<code>Diabetes</code>) of “No” appears to be more tightly distributed around a lower mean. A quick t-test confirms this to a statistically significant difference. High <code>BMI</code> may help us predict a positive diagnosis.</p>
+<p>A diabetes diagnosis (<code>Diabetes</code>) of “No” appears to be more tightly distributed around a lower mean. A quick t-test from a random sample of the data set shows this to a statistically significant difference. High <code>BMI</code> may help us predict a positive diagnosis.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>BMI_Yes <span class="ot">&lt;-</span> diabetes <span class="sc">|&gt;</span> <span class="fu">filter</span>(Diabetes <span class="sc">==</span> <span class="st">"Yes"</span>) <span class="sc">|&gt;</span> <span class="fu">pull</span>(BMI)</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>BMI_No <span class="ot">&lt;-</span> diabetes <span class="sc">|&gt;</span> <span class="fu">filter</span>(Diabetes <span class="sc">==</span> <span class="st">"No"</span>) <span class="sc">|&gt;</span> <span class="fu">pull</span>(BMI)</span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(BMI_Yes, BMI_No, <span class="at">var.equal =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">558</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>diabetes_sample <span class="ot">&lt;-</span> </span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  diabetes <span class="sc">|&gt;</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Diabetes) <span class="sc">|&gt;</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sample_frac</span>(<span class="fl">0.0025</span>)</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>BMI_Yes <span class="ot">&lt;-</span> diabetes_sample <span class="sc">|&gt;</span> <span class="fu">filter</span>(Diabetes <span class="sc">==</span> <span class="st">"Yes"</span>) <span class="sc">|&gt;</span> <span class="fu">pull</span>(BMI)</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>BMI_No <span class="ot">&lt;-</span> diabetes_sample <span class="sc">|&gt;</span> <span class="fu">filter</span>(Diabetes <span class="sc">==</span> <span class="st">"No"</span>) <span class="sc">|&gt;</span> <span class="fu">pull</span>(BMI)</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(BMI_Yes, BMI_No, <span class="at">var.equal =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Two Sample t-test
 
 data:  BMI_Yes and BMI_No
-t = 112, df = 253678, p-value &lt;0.0000000000000002
+t = 5, df = 632, p-value = 0.000004
 alternative hypothesis: true difference in means is not equal to 0
 95 percent confidence interval:
- 4.1 4.2
+ 1.9 4.7
 sample estimates:
 mean of x mean of y 
-       32        28 </code></pre>
+       31        28 </code></pre>
 </div>
 </div>
 <p>Compare the density plot of days of poor physical health (<code>PhysHlth</code>) for positive versus negative diabetes diagnosis.</p>
@@ -854,24 +862,31 @@ mean of x mean of y
 </div>
 </div>
 </div>
-<p>The “No” class for <code>Diabetes</code> is highly peaked a 0, while the “Yes” class looks to be a bit more uniformly distributed. The <code>PhysHlth</code> variable seems like a good candidate to include in our prediction model.</p>
+<p>The “No” class for <code>Diabetes</code> is highly peaked a 0, while the “Yes” class looks to be a bit more uniformly distributed. A quick t-test from a random sample of the data set shows a statistically significant difference. The <code>PhysHlth</code> variable seems like a good candidate to include in our prediction model.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>Phys_Yes <span class="ot">&lt;-</span> diabetes <span class="sc">|&gt;</span> <span class="fu">filter</span>(Diabetes <span class="sc">==</span> <span class="st">"Yes"</span>) <span class="sc">|&gt;</span> <span class="fu">pull</span>(PhysHlth)</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>Phys_No <span class="ot">&lt;-</span> diabetes <span class="sc">|&gt;</span> <span class="fu">filter</span>(Diabetes <span class="sc">==</span> <span class="st">"No"</span>) <span class="sc">|&gt;</span> <span class="fu">pull</span>(PhysHlth)</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(Phys_Yes, Phys_No, <span class="at">var.equal =</span> F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">558</span>)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>diabetes_sample <span class="ot">&lt;-</span> </span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  diabetes <span class="sc">|&gt;</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Diabetes) <span class="sc">|&gt;</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sample_frac</span>(<span class="fl">0.0025</span>)</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>Phys_Yes <span class="ot">&lt;-</span> diabetes_sample <span class="sc">|&gt;</span> <span class="fu">filter</span>(Diabetes <span class="sc">==</span> <span class="st">"Yes"</span>) <span class="sc">|&gt;</span> <span class="fu">pull</span>(PhysHlth)</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>Phys_No <span class="ot">&lt;-</span> diabetes_sample <span class="sc">|&gt;</span> <span class="fu">filter</span>(Diabetes <span class="sc">==</span> <span class="st">"No"</span>) <span class="sc">|&gt;</span> <span class="fu">pull</span>(PhysHlth)</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(Phys_Yes, Phys_No, <span class="at">var.equal =</span> F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Welch Two Sample t-test
 
 data:  Phys_Yes and Phys_No
-t = 69, df = 41367, p-value &lt;0.0000000000000002
+t = 3, df = 104, p-value = 0.003
 alternative hypothesis: true difference in means is not equal to 0
 95 percent confidence interval:
- 4.2 4.4
+ 1.4 6.4
 sample estimates:
 mean of x mean of y 
-      8.0       3.6 </code></pre>
+      7.9       4.1 </code></pre>
 </div>
 </div>
 <p>Compare the density plot of days of poor mental health (<code>MentHlth</code>) for positive versus negative diabetes diagnosis.</p>

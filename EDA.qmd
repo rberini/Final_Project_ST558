@@ -328,11 +328,19 @@ diabetes |>
   scale_fill_manual(values = c("Yes"="#F51304","No"="#2D8AEB"))
 ```
 
-A diabetes diagnosis (`Diabetes`) of "No" appears to be more tightly distributed around a lower mean. A quick t-test confirms this to a statistically significant difference. High `BMI` may help us predict a positive diagnosis.
+A diabetes diagnosis (`Diabetes`) of "No" appears to be more tightly distributed around a lower mean. A quick t-test from a random sample of the data set shows this to a statistically significant difference. High `BMI` may help us predict a positive diagnosis.
 
 ```{r}
-BMI_Yes <- diabetes |> filter(Diabetes == "Yes") |> pull(BMI)
-BMI_No <- diabetes |> filter(Diabetes == "No") |> pull(BMI)
+set.seed(558)
+
+diabetes_sample <- 
+  diabetes |>
+  group_by(Diabetes) |>
+  sample_frac(0.0025)
+
+
+BMI_Yes <- diabetes_sample |> filter(Diabetes == "Yes") |> pull(BMI)
+BMI_No <- diabetes_sample |> filter(Diabetes == "No") |> pull(BMI)
 
 t.test(BMI_Yes, BMI_No, var.equal = T)
 ```
@@ -349,11 +357,18 @@ diabetes |>
   facet_wrap(~ Diabetes)
 ```
 
-The "No" class for `Diabetes` is highly peaked a 0, while the "Yes" class looks to be a bit more uniformly distributed. The `PhysHlth` variable seems like a good candidate to include in our prediction model.
+The "No" class for `Diabetes` is highly peaked a 0, while the "Yes" class looks to be a bit more uniformly distributed. A quick t-test from a random sample of the data set shows a statistically significant difference. The `PhysHlth` variable seems like a good candidate to include in our prediction model.
 
 ```{r}
-Phys_Yes <- diabetes |> filter(Diabetes == "Yes") |> pull(PhysHlth)
-Phys_No <- diabetes |> filter(Diabetes == "No") |> pull(PhysHlth)
+set.seed(558)
+
+diabetes_sample <- 
+  diabetes |>
+  group_by(Diabetes) |>
+  sample_frac(0.0025)
+
+Phys_Yes <- diabetes_sample |> filter(Diabetes == "Yes") |> pull(PhysHlth)
+Phys_No <- diabetes_sample |> filter(Diabetes == "No") |> pull(PhysHlth)
 
 t.test(Phys_Yes, Phys_No, var.equal = F)
 ```
