@@ -817,7 +817,7 @@ PhysHlth 0.121    0.52    0.354     1.00</code></pre>
 </div>
 </div>
 </div>
-<p>A diabetes diagnosis (<code>Diabetes</code>) of “No” appears to be more tightly distributed around a lower mean. A quick t-test from a random sample of the data set shows this to a statistically significant difference. High <code>BMI</code> may help us predict a positive diagnosis.</p>
+<p>A diabetes diagnosis (<code>Diabetes</code>) of “No” appears to be more tightly distributed around a lower mean. A quick t-test from a random stratified sample of the data set shows this to be a statistically significant difference. High <code>BMI</code> may help us predict a positive diagnosis.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">558</span>)</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -862,7 +862,7 @@ mean of x mean of y
 </div>
 </div>
 </div>
-<p>The “No” class for <code>Diabetes</code> is highly peaked a 0, while the “Yes” class looks to be a bit more uniformly distributed. A quick t-test from a random sample of the data set shows a statistically significant difference. The <code>PhysHlth</code> variable seems like a good candidate to include in our prediction model.</p>
+<p>The “No” class for <code>Diabetes</code> is highly peaked a 0, while the “Yes” class looks to be a bit more uniformly distributed. A quick t-test from a random stratified sample of the data set shows a statistically significant difference. The <code>PhysHlth</code> variable seems like a good candidate to include in our prediction model.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">558</span>)</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>

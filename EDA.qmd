@@ -328,7 +328,7 @@ diabetes |>
   scale_fill_manual(values = c("Yes"="#F51304","No"="#2D8AEB"))
 ```
 
-A diabetes diagnosis (`Diabetes`) of "No" appears to be more tightly distributed around a lower mean. A quick t-test from a random sample of the data set shows this to a statistically significant difference. High `BMI` may help us predict a positive diagnosis.
+A diabetes diagnosis (`Diabetes`) of "No" appears to be more tightly distributed around a lower mean. A quick t-test from a random stratified sample of the data set shows this to be a statistically significant difference. High `BMI` may help us predict a positive diagnosis.
 
 ```{r}
 set.seed(558)
@@ -357,7 +357,7 @@ diabetes |>
   facet_wrap(~ Diabetes)
 ```
 
-The "No" class for `Diabetes` is highly peaked a 0, while the "Yes" class looks to be a bit more uniformly distributed. A quick t-test from a random sample of the data set shows a statistically significant difference. The `PhysHlth` variable seems like a good candidate to include in our prediction model.
+The "No" class for `Diabetes` is highly peaked a 0, while the "Yes" class looks to be a bit more uniformly distributed. A quick t-test from a random stratified sample of the data set shows a statistically significant difference. The `PhysHlth` variable seems like a good candidate to include in our prediction model.
 
 ```{r}
 set.seed(558)
